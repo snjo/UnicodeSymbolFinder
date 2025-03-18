@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.13.35806.99 d17.13
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SymbolFinder", "SymbolFinder\SymbolFinder.csproj", "{22372F0C-9892-4EE2-AB1A-56E8742D3B23}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{22372F0C-9892-4EE2-AB1A-56E8742D3B23}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{22372F0C-9892-4EE2-AB1A-56E8742D3B23}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{22372F0C-9892-4EE2-AB1A-56E8742D3B23}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{22372F0C-9892-4EE2-AB1A-56E8742D3B23}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {05A036E8-EDE6-46A5-AD36-79FB227769CE}
+	EndGlobalSection
+EndGlobal
