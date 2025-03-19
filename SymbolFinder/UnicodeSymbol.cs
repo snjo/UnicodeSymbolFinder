@@ -10,7 +10,7 @@ namespace SymbolFinder
     public class UnicodeSymbol
     {
         public string Name { get; set; } // the display name of the character
-        public char Symbol { get; set; } // the actual unicode symbol character
+        public string Symbol { get; set; } // the actual unicode symbol character
         public string CodePoint { get; set; } // unicode hex code
         public bool hidden = false;
 
@@ -30,9 +30,18 @@ namespace SymbolFinder
             }
             Name = values[(int)Importindex.Name];
             CodePoint = values[(int)Importindex.Code_Point];
-            long codeNumber = Convert.ToInt64(CodePoint, 16);
+            int codeNumber = Convert.ToInt32(CodePoint, 16);
 
-            Symbol = (char)codeNumber;
+            //Symbol = (char)codeNumber;
+            if (Name.Contains("surrogate", StringComparison.InvariantCultureIgnoreCase))
+            {
+                Symbol = "";
+            }
+            else
+            {
+                Symbol = char.ConvertFromUtf32(codeNumber);
+            }
+
             //Debug.WriteLine($"Name: {Name}   Codepoint: {CodePoint}   Symbol: {Symbol}.");
         }
 
