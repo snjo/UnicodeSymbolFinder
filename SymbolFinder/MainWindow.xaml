@@ -46,19 +46,33 @@
         </Grid>
 
         <Grid Grid.Row="1">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid Grid.Column="0">
+                    <ListView x:Name="ResultBox" Margin="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" MouseDoubleClick="ResultBox_MouseDoubleClick" KeyDown="ResultBox_KeyDown" FontSize="15">
+                        <ListView.View>
+                            <GridView AllowsColumnReorder="False"
+                                      ColumnHeaderToolTip="Code">
+                                <GridViewColumn DisplayMemberBinding="{Binding CodePoint}" Header="Code" Width="100"/>
+                                <GridViewColumn DisplayMemberBinding="{Binding Symbol}" Header="Symbol" Width="50"/>
+                                <GridViewColumn DisplayMemberBinding="{Binding Name}" Header="Name" Width="300"/>
 
-            <ListView x:Name="ResultBox" Margin="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" MouseDoubleClick="ResultBox_MouseDoubleClick" KeyDown="ResultBox_KeyDown" FontSize="15">
-                <ListView.View>
-                    <GridView AllowsColumnReorder="False"
-                              ColumnHeaderToolTip="Code">
-                        <GridViewColumn DisplayMemberBinding="{Binding CodePoint}" Header="Code" Width="100"/>
-                        <GridViewColumn DisplayMemberBinding="{Binding Symbol}" Header="Symbol" Width="50"/>
-                        <GridViewColumn DisplayMemberBinding="{Binding Name}" Header="Name" Width="300"/>
-
-                    </GridView>
-                </ListView.View>
-            </ListView>
-
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                </Grid>
+                <Grid Grid.Column="1" Background="LightGray">
+                    <StackPanel>
+                        <TextBlock x:Name="TextblockSymbolName" Margin="10" FontSize="15" Text="Symbol name"/>
+                        <TextBlock x:Name="TextblockSymbolCodepoint" Margin="10" FontSize="15" Text="Codepoint"/>
+                        <TextBlock x:Name="TextblockSymbolGraphic" Margin="10" FontSize="50" HorizontalAlignment="Center" Text="S"/>
+                        <TextBlock x:Name="TextblockSymbolInfo" Margin="10" FontSize="15" Text="More information"/>
+                    </StackPanel>
+                </Grid>
+            </Grid>
         </Grid>
     </Grid>
 </Window>
