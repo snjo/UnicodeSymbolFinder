@@ -12,6 +12,7 @@ namespace SymbolFinder
         public string Name { get; set; } // the display name of the character
         public char Symbol { get; set; } // the actual unicode symbol character
         public string CodePoint { get; set; } // unicode hex code
+        public bool hidden = false;
 
         //public UnicodeSymbol(string name, string symbol, int number)
         //{
@@ -30,6 +31,7 @@ namespace SymbolFinder
             Name = values[(int)Importindex.Name];
             CodePoint = values[(int)Importindex.Code_Point];
             long codeNumber = Convert.ToInt64(CodePoint, 16);
+
             Symbol = (char)codeNumber;
             //Debug.WriteLine($"Name: {Name}   Codepoint: {CodePoint}   Symbol: {Symbol}.");
         }
@@ -59,8 +61,9 @@ namespace SymbolFinder
             END
         }
 
-        public bool Contains(string searchTerm)
+        public bool Contains(string searchTerm, bool showHidden = false)
         {
+            if (hidden && !showHidden) return false;
             return (Name.Contains(searchTerm, StringComparison.InvariantCultureIgnoreCase));
         }
     }

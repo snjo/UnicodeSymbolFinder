@@ -1,8 +1,11 @@
-﻿using System.Collections.ObjectModel;
+﻿using System.Collections;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Diagnostics.SymbolStore;
 using System.IO;
+using System.Numerics;
 using System.Text;
+using System.Text.Json;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -23,6 +26,9 @@ public partial class MainWindow : Window
 
     List<UnicodeSymbol> Symbols = [];
     public ObservableCollection<UnicodeSymbol> SearchResults = [];
+    public Dictionary<string, string>? HiddenSymbols = [];
+    public bool ShowHiddenSymbols { get; set; }
+    string hiddenSymbolsFilePath = @"data\hiddensymbols.txt";
 
     /*
         Code_Point;
@@ -48,28 +54,56 @@ public partial class MainWindow : Window
         LoadUnicodeFile(@"data\UnicodeData.txt");
         this.DataContext = this;
         ResultBox.ItemsSource = SearchResults;
+        LoadHiddenSymbolsFile(hiddenSymbolsFilePath);
     }
 
     private void ClickSearch(object sender, RoutedEventArgs e)
     {
-        SearchSymbols();
+        SearchSymbols(ShowHiddenSymbols);
     }
 
-    private void SearchSymbols()
+    private void SearchSymbols(bool showHidden)
     {
+        Debug.WriteLine($"Searching, show hidden: {showHidden}");
         string searchTerm = TextboxSearch.Text;
 
         SearchResults.Clear();
 
+        int foundAmount = 0;
+        int foundHiddenAmount = 0;
+        
+
         foreach (UnicodeSymbol symbol in Symbols)
         {
-            StringBuilder sb = new();
-            if (symbol.Contains(searchTerm))
+            bool addEntry = false;
+            if (symbol.Contains(searchTerm, true))
             {
-                SearchResults.Add(symbol);
+                
+                if (symbol.hidden)
+                {
+                    if (showHidden)
+                    {
+                        addEntry = true;
+                    }
+                    else
+                    {
+                        foundHiddenAmount++;
+                    }
+                }
+                else
+                {
+                    addEntry = true;
+                }
+
+                if (addEntry)
+                {
+                    foundAmount++;
+                    SearchResults.Add(symbol);
+                }
             }
         }
-        Debug.WriteLine($"Found {SearchResults.Count} among {Symbols.Count} matching {searchTerm}");
+        TextblockSearchCount.Text = $"Found {foundAmount} ({foundHiddenAmount} hidden)";
+        Debug.WriteLine($"Found {foundAmount} among {Symbols.Count} matching {searchTerm}. {foundHiddenAmount} were hidden");
     }
 
     private void LoadUnicodeFile(string filename)
@@ -115,7 +149,7 @@ public partial class MainWindow : Window
         CopySymbolToClipboard(symbol);
     }
 
-    private void CopySymbolToClipboard(UnicodeSymbol? symbol)
+    private static void CopySymbolToClipboard(UnicodeSymbol? symbol)
     {
         if (symbol == null) return;
         Clipboard.SetText(symbol.Symbol.ToString());
@@ -125,7 +159,77 @@ public partial class MainWindow : Window
     {
         if (e.Key == Key.Enter)
         {
-            SearchSymbols();
+            SearchSymbols(ShowHiddenSymbols);
+        }
+    }
+
+    private void HideSelectedSymbols()
+    {
+        if (HiddenSymbols == null)
+        {
+            HiddenSymbols = [];
+        }
+        bool updateHiddenSymbolsFile = false;
+        foreach (object obj in ResultBox.SelectedItems)
+        {
+            if (obj is UnicodeSymbol symbol)
+            {
+                Debug.WriteLine($"Hide symbol {symbol.CodePoint} : {symbol.Name}");
+                if (HiddenSymbols.ContainsKey(symbol.CodePoint) == false)
+                {
+                    HiddenSymbols.Add(symbol.CodePoint, symbol.Name);
+                    symbol.hidden = true;
+                }
+                updateHiddenSymbolsFile = true;
+            }
+        }
+        if (updateHiddenSymbolsFile)
+        {
+            SaveHiddenSymbolsFile(hiddenSymbolsFilePath);
+        }
+    }
+
+    private void SaveHiddenSymbolsFile(string file)
+    {
+        string jsonString = JsonSerializer.Serialize(HiddenSymbols);
+        //string saveFilePath = @"data\hiddensymbols.txt";
+        string fullPath = System.IO.Path.GetFullPath(file);
+        Debug.WriteLine($"Save to path: {fullPath}");
+        File.WriteAllText(@"data\hiddensymbols.txt", jsonString);
+    }
+
+    private void LoadHiddenSymbolsFile(string file)
+    {
+        string fullPath = System.IO.Path.GetFullPath(file);
+        Debug.WriteLine($"Load from path: {fullPath}");
+        string jsonString = File.ReadAllText(fullPath);
+        HiddenSymbols = JsonSerializer.Deserialize < Dictionary<string, string>>(jsonString);
+        if (HiddenSymbols == null)
+        {
+            Debug.WriteLine($"Failed to load Hidden Symbols list, creating empty Dictionary.");
+            HiddenSymbols = [];
+        }
+        else
+        {
+            Debug.WriteLine($"Loaded Hidden Symbols list with {HiddenSymbols.Count} entries");
+        }
+
+        foreach (UnicodeSymbol symbol in Symbols)
+        {
+            if (HiddenSymbols.ContainsKey(symbol.CodePoint))
+            {
+                symbol.hidden = true;
+                Debug.WriteLine($"Hiding symbol {symbol.CodePoint} : {symbol.Name}");
+            }
+        }
+    }
+
+
+    private void ResultBox_KeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Delete)
+        {
+            HideSelectedSymbols();
         }
     }
 }
