@@ -12,6 +12,10 @@ namespace SymbolFinder
         public string Name { get; set; } // the display name of the character
         public string Symbol { get; set; } // the actual unicode symbol character
         public string CodePoint { get; set; } // unicode hex code
+        public string Category { get; set; } // unicode symbol Category
+        public string ISOcomment { get; set; }
+        public string Unicode_1_Name { get; set; }
+
         public bool hidden = false;
 
         //public UnicodeSymbol(string name, string symbol, int number)
@@ -31,11 +35,17 @@ namespace SymbolFinder
             Name = values[(int)Importindex.Name];
             CodePoint = values[(int)Importindex.Code_Point];
             int codeNumber = Convert.ToInt32(CodePoint, 16);
+            Category = values[(int)Importindex.General_Category];
+            Unicode_1_Name = values[(int)Importindex.Unicode_1_Name];
+            ISOcomment = values[(int)Importindex.ISO_Comment];
 
-            //Symbol = (char)codeNumber;
+
+            // skip any symbols marked as surrogate, otherwise ConvertFromUtf32 causes an exception. String matching is sufficient.
+            // A high surrogate is a character in the range U+D800 through U+DBFF. A low surrogate is a character in the range U+DC00 through U+DFFF.
             if (Name.Contains("surrogate", StringComparison.InvariantCultureIgnoreCase))
             {
                 Symbol = "";
+                hidden = true;
             }
             else
             {

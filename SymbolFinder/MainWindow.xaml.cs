@@ -28,7 +28,8 @@ public partial class MainWindow : Window
     public ObservableCollection<UnicodeSymbol> SearchResults = [];
     public Dictionary<string, string>? HiddenSymbols = [];
     public bool ShowHiddenSymbols { get; set; }
-    string hiddenSymbolsFilePath = @"data\hiddensymbols.txt";
+    public string hiddenSymbolsFilePath = @"data\hiddensymbols.txt";
+
 
     /*
         Code_Point;
@@ -231,5 +232,19 @@ public partial class MainWindow : Window
         {
             HideSelectedSymbols();
         }
+    }
+
+    private void ResultBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (ResultBox.SelectedItem is UnicodeSymbol symbol)
+        {
+            Debug.WriteLine($"Showing info for symbol {symbol.Name}");
+            TextboxSymbolName.Text = symbol.Name;
+            TextboxSymbolGraphic.Text = symbol.Symbol;
+            TextboxSymbolCodepoint.Text = symbol.CodePoint;
+            TextblockSymbolCategory.Text = "Category: " + symbol.Category;
+            TextblockISOcomment.Text = "ISO comment: " + symbol.ISOcomment;
+            TextblockUnicode1Name.Text = "Unicode 1 name: " + symbol.Unicode_1_Name;
+        }    
     }
 }
