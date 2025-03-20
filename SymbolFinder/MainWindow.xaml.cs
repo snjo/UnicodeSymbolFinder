@@ -54,6 +54,7 @@ public partial class MainWindow : Window
         InitializeComponent();
         LoadUnicodeFile(@"data\UnicodeData.txt");
         this.DataContext = this;
+        ResultBox.Items.Clear();
         ResultBox.ItemsSource = SearchResults;
         LoadHiddenSymbolsFile(hiddenSymbolsFilePath);
     }
@@ -80,15 +81,12 @@ public partial class MainWindow : Window
             if (symbol.Contains(searchTerm, true))
             {
                 
-                if (symbol.hidden)
+                if (symbol.Hidden)
                 {
+                    foundHiddenAmount++;
                     if (showHidden)
                     {
                         addEntry = true;
-                    }
-                    else
-                    {
-                        foundHiddenAmount++;
                     }
                 }
                 else
@@ -103,8 +101,17 @@ public partial class MainWindow : Window
                 }
             }
         }
-        TextblockSearchCount.Text = $"Found {foundAmount} ({foundHiddenAmount} hidden)";
-        Debug.WriteLine($"Found {foundAmount} among {Symbols.Count} matching {searchTerm}. {foundHiddenAmount} were hidden");
+
+        if (showHidden)
+        {
+            TextblockSearchCount.Text = $"Found {foundAmount} (including {foundHiddenAmount} hidden symbols)";
+            
+        }
+        else
+        {
+            TextblockSearchCount.Text = $"Found {foundAmount} ({foundHiddenAmount} symbols hidden)";
+        }
+        //Debug.WriteLine($"Found {foundAmount} among {Symbols.Count} matching {searchTerm}. {foundHiddenAmount} were hidden");
     }
 
     private void LoadUnicodeFile(string filename)
@@ -142,18 +149,26 @@ public partial class MainWindow : Window
         if (symbol != null)
         {
             Debug.WriteLine($"Copy {symbol.Name}");
+            CopySymbolToClipboard(symbol);
         }
         else
         {
             Debug.WriteLine($"Selected symbol was null");
         }
-        CopySymbolToClipboard(symbol);
     }
 
     private static void CopySymbolToClipboard(UnicodeSymbol? symbol)
     {
         if (symbol == null) return;
-        Clipboard.SetText(symbol.Symbol.ToString());
+        string clipboardText = symbol.Symbol.ToString();
+        if (clipboardText.Length > 0)
+        {
+            Clipboard.SetText(symbol.Symbol.ToString());
+        }
+        else
+        {
+            Clipboard.Clear();
+        }
     }
 
     private void TextboxSearch_KeyDown(object sender, KeyEventArgs e)
@@ -175,11 +190,37 @@ public partial class MainWindow : Window
         {
             if (obj is UnicodeSymbol symbol)
             {
-                Debug.WriteLine($"Hide symbol {symbol.CodePoint} : {symbol.Name}");
+                //Debug.WriteLine($"Hide symbol {symbol.CodePoint} : {symbol.Name}");
                 if (HiddenSymbols.ContainsKey(symbol.CodePoint) == false)
                 {
                     HiddenSymbols.Add(symbol.CodePoint, symbol.Name);
-                    symbol.hidden = true;
+                    symbol.Hidden = true;
+                }
+                updateHiddenSymbolsFile = true;
+            }
+        }
+        if (updateHiddenSymbolsFile)
+        {
+            SaveHiddenSymbolsFile(hiddenSymbolsFilePath);
+        }
+    }
+
+    private void UnHideSelectedSymbols()
+    {
+        if (HiddenSymbols == null)
+        {
+            HiddenSymbols = [];
+        }
+        bool updateHiddenSymbolsFile = false;
+        foreach (object obj in ResultBox.SelectedItems)
+        {
+            if (obj is UnicodeSymbol symbol)
+            {
+                //Debug.WriteLine($"Unhide symbol {symbol.CodePoint} : {symbol.Name}");
+                if (HiddenSymbols.ContainsKey(symbol.CodePoint) == true)
+                {
+                    HiddenSymbols.Remove(symbol.CodePoint);
+                    symbol.Hidden = false;
                 }
                 updateHiddenSymbolsFile = true;
             }
@@ -219,7 +260,7 @@ public partial class MainWindow : Window
         {
             if (HiddenSymbols.ContainsKey(symbol.CodePoint))
             {
-                symbol.hidden = true;
+                symbol.Hidden = true;
                 Debug.WriteLine($"Hiding symbol {symbol.CodePoint} : {symbol.Name}");
             }
         }
@@ -228,9 +269,13 @@ public partial class MainWindow : Window
 
     private void ResultBox_KeyDown(object sender, KeyEventArgs e)
     {
-        if (e.Key == Key.Delete)
+        if (e.Key == Key.H)
         {
             HideSelectedSymbols();
+        }
+        if (e.Key == Key.U)
+        {
+            UnHideSelectedSymbols();
         }
     }
 
@@ -246,5 +291,15 @@ public partial class MainWindow : Window
             TextblockISOcomment.Text = "ISO comment: " + symbol.ISOcomment;
             TextblockUnicode1Name.Text = "Unicode 1 name: " + symbol.Unicode_1_Name;
         }    
+    }
+
+    private void ButtonHideSelected_Click(object sender, RoutedEventArgs e)
+    {
+        HideSelectedSymbols();
+    }
+
+    private void ButtonUnHideSelected_Click(object sender, RoutedEventArgs e)
+    {
+        UnHideSelectedSymbols();
     }
 }

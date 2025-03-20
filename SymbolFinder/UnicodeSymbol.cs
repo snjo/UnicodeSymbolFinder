@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace SymbolFinder
 {
-    public class UnicodeSymbol
+    public class UnicodeSymbol : INotifyPropertyChanged
     {
         public string Name { get; set; } // the display name of the character
         public string Symbol { get; set; } // the actual unicode symbol character
@@ -16,7 +18,24 @@ namespace SymbolFinder
         public string ISOcomment { get; set; }
         public string Unicode_1_Name { get; set; }
 
-        public bool hidden = false;
+        //This is all that the interface requires
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        private bool _hidden = false;
+        public bool Hidden {
+            get
+            {
+                return _hidden;
+            }
+            set
+            {
+                _hidden = value;
+                if (PropertyChanged != null)
+                {
+                    PropertyChanged(this, new PropertyChangedEventArgs("Hidden"));
+                }
+            }
+        }
 
         //public UnicodeSymbol(string name, string symbol, int number)
         //{
@@ -39,13 +58,12 @@ namespace SymbolFinder
             Unicode_1_Name = values[(int)Importindex.Unicode_1_Name];
             ISOcomment = values[(int)Importindex.ISO_Comment];
 
-
             // skip any symbols marked as surrogate, otherwise ConvertFromUtf32 causes an exception. String matching is sufficient.
             // A high surrogate is a character in the range U+D800 through U+DBFF. A low surrogate is a character in the range U+DC00 through U+DFFF.
             if (Name.Contains("surrogate", StringComparison.InvariantCultureIgnoreCase))
             {
                 Symbol = "";
-                hidden = true;
+                Hidden = true;
             }
             else
             {
@@ -82,7 +100,7 @@ namespace SymbolFinder
 
         public bool Contains(string searchTerm, bool showHidden = false)
         {
-            if (hidden && !showHidden) return false;
+            if (Hidden && !showHidden) return false;
             return (Name.Contains(searchTerm, StringComparison.InvariantCultureIgnoreCase));
         }
     }
