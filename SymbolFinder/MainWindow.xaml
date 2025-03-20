@@ -5,8 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SymbolFinder"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800"
-        DataContext="{Binding RelativeSource={RelativeSource self}}"
+        Title="Unicode Symbol Finder" Height="450" Width="800"
+        DataContext="{Binding RelativeSource={RelativeSource self}}" Icon="/thinkingface32.png"
         >
     <Grid>
         <Grid.RowDefinitions>
@@ -43,6 +43,7 @@
                 </TextBox>
 
                 <Button Click="ClickSearch" Padding="10 0 10 0" Margin="5" Content="Search"/>
+                <CheckBox x:Name="CheckboxShowFavorites" IsChecked="{Binding ShowFavoritesOnly, Mode=TwoWay}"  Content="Only Favorites" Margin="5" VerticalAlignment="Center"/>
                 <CheckBox x:Name="CheckboxShowHidden" IsChecked="{Binding ShowHiddenSymbols, Mode=TwoWay}"  Content="Show hidden" Margin="5" VerticalAlignment="Center"/>
                 <TextBlock x:Name="TextblockSearchCount" Text="..." VerticalAlignment="Center" Margin="20 5 5 5" Foreground="Gray"/>
             </StackPanel>
@@ -64,6 +65,12 @@
                                     </DataTrigger>
                                     <DataTrigger Binding="{Binding Hidden}" Value="False">
                                         <Setter Property="Foreground" Value="Black" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Favorite}" Value="True">
+                                        <Setter Property="Background" Value="Yellow" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Favorite}" Value="False">
+                                        <Setter Property="Background" Value="White" />
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>

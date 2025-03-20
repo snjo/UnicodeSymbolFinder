@@ -37,6 +37,24 @@ namespace SymbolFinder
             }
         }
 
+        private bool _favorite = false;
+        public bool Favorite
+        {
+            get
+            {
+                return _favorite;
+            }
+            set
+            {
+                _favorite = value;
+                if (PropertyChanged != null)
+                {
+                    PropertyChanged(this, new PropertyChangedEventArgs("Favorite"));
+                }
+            }
+        }
+
+
         //public UnicodeSymbol(string name, string symbol, int number)
         //{
         //    throw new NotImplementedException();
