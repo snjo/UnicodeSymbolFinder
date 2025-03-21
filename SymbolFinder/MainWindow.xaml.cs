@@ -30,6 +30,7 @@ public partial class MainWindow : Window
     public Dictionary<string, string>? Favorites = [];
     public bool ShowHiddenSymbols { get; set; }
     public bool ShowFavoritesOnly { get; set; }
+    public FontData ResultFontSize = new(15);
     public string hiddenSymbolsFilePath = @"data\hiddensymbols.txt";
     public string favoritesFilePath = @"data\favorites.txt";
     public string unicodeDataFilePath = @"data\UnicodeData.txt"; // source file from the Unicode.org
@@ -143,7 +144,7 @@ public partial class MainWindow : Window
                 continue;
             }
             
-            Symbols.Add(new UnicodeSymbol(values));
+            Symbols.Add(new UnicodeSymbol(this, values));
             counter++;
         }
 
@@ -457,7 +458,7 @@ public partial class MainWindow : Window
                 string[] entries = line.Split(';');
                 if (entries.Length >= 7)
                 {
-                    Symbols.Add(new UnicodeSymbol(entries[0], entries[1], entries[2], entries[3], entries[4], bool.Parse(entries[5]), bool.Parse(entries[6])));
+                    Symbols.Add(new UnicodeSymbol(this, entries[0], entries[1], entries[2], entries[3], entries[4], bool.Parse(entries[5]), bool.Parse(entries[6])));
                 }
                 else
                 {
@@ -505,5 +506,25 @@ public partial class MainWindow : Window
     {
         Debug.WriteLine($"Closing application, requesting save of symbols file");
         SaveSymolsFile();
+    }
+
+    private void ButtonFontPlus_Click(object sender, RoutedEventArgs e)
+    {
+        Debug.WriteLine($"Setting font size {ResultFontSize.FontSize}");
+        ResultFontSize.FontSize += 5;
+        TextblockFontSize.Text = "Font size: " + ResultFontSize.FontSize.ToString();
+        ResultBox.Items.Refresh();
+    }
+
+    private void ButtonFontMinus_Click(object sender, RoutedEventArgs e)
+    {
+        Debug.WriteLine($"Setting font size {ResultFontSize.FontSize}");
+        ResultFontSize.FontSize -= 5;
+        if (ResultFontSize.FontSize < 10)
+        {
+            ResultFontSize.FontSize = 10;
+        }
+        TextblockFontSize.Text = "Font size: " + ResultFontSize.FontSize.ToString();
+        ResultBox.Items.Refresh();
     }
 }

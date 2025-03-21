@@ -17,6 +17,7 @@ namespace SymbolFinder
         public string Category { get; set; } // unicode symbol Category
         public string ISOcomment { get; set; }
         public string Unicode_1_Name { get; set; }
+        private MainWindow Parent;
 
         private string _personalComment = "";
         public string PersonalComment
@@ -31,6 +32,22 @@ namespace SymbolFinder
                 if (PropertyChanged != null)
                 {
                     PropertyChanged(this, new PropertyChangedEventArgs("PersonalComment"));
+                }
+            }
+        }
+
+        public double FontSize
+        { 
+            get
+            { 
+                return Parent.ResultFontSize.FontSize;
+            }
+            set
+            {
+                Parent.ResultFontSize.FontSize = value;
+                if (PropertyChanged != null)
+                {
+                    PropertyChanged(this, new PropertyChangedEventArgs("FontSize"));
                 }
             }
         }
@@ -71,8 +88,9 @@ namespace SymbolFinder
             }
         }
 
-        public UnicodeSymbol(string codepoint, string name, string category, string unicode_1_name, string personalcomment, bool favorite, bool hidden) // import from custom symbol file
+        public UnicodeSymbol(MainWindow parent, string codepoint, string name, string category, string unicode_1_name, string personalcomment, bool favorite, bool hidden) // import from custom symbol file
         {
+            Parent = parent;
             CodePoint = codepoint;
             Name = name;
             Category = category;
@@ -94,8 +112,9 @@ namespace SymbolFinder
             }
         }
 
-        public UnicodeSymbol(string[] values) // import from UnicodeData.txt from unicode.org
+        public UnicodeSymbol(MainWindow parent, string[] values) // import from UnicodeData.txt from unicode.org
         {
+            Parent = parent;
             if (values.Length < (int)Importindex.END)
             {
                 throw new IndexOutOfRangeException("Unicode values array is shorter than expected");
