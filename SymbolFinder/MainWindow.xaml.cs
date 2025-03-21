@@ -32,9 +32,11 @@ public partial class MainWindow : Window
     public bool ShowFavoritesOnly { get; set; }
     public string hiddenSymbolsFilePath = @"data\hiddensymbols.txt";
     public string favoritesFilePath = @"data\favorites.txt";
-    public string unicodeDataFilePath = @"data\UnicodeData.txt";
+    public string unicodeDataFilePath = @"data\UnicodeData.txt"; // source file from the Unicode.org
+    public string unicodeSymbolsFilePath = @"data\symbols.txt"; // the generated personal library file
 
-
+    System.Windows.Threading.DispatcherTimer saveTimer = new System.Windows.Threading.DispatcherTimer();
+    
     /*
         Code_Point;
         Name;
@@ -56,12 +58,28 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
-        LoadUnicodeFile(unicodeDataFilePath);
+        if (File.Exists(unicodeSymbolsFilePath))
+        {
+            LoadSymbolsFile();
+        }
+        else
+        {
+            LoadUnicodeFile(unicodeDataFilePath);
+        }
+        
         this.DataContext = this;
         ResultBox.Items.Clear();
         ResultBox.ItemsSource = SearchResults;
-        LoadHiddenSymbolsFile(hiddenSymbolsFilePath);
-        LoadFavoritesFile(favoritesFilePath);
+        //LoadHiddenSymbolsFile(hiddenSymbolsFilePath);
+        //LoadFavoritesFile(favoritesFilePath);
+        saveTimer.Tick += new EventHandler(SaveTimer_Tick);
+        saveTimer.Interval = new TimeSpan(0, 0, 30);
+        saveTimer.Start();
+    }
+
+    private void SaveTimer_Tick(object? sender, EventArgs e)
+    {
+        SaveSymolsFile();
     }
 
     private void ClickSearch(object sender, RoutedEventArgs e)
@@ -201,7 +219,7 @@ public partial class MainWindow : Window
         {
             Favorites = [];
         }
-        bool updateFavoritesFile = false;
+        //bool updateFavoritesFile = false;
         foreach (object obj in ResultBox.SelectedItems)
         {
             if (obj is UnicodeSymbol symbol)
@@ -211,13 +229,14 @@ public partial class MainWindow : Window
                     Favorites.Add(symbol.CodePoint, symbol.Name);
                     symbol.Favorite = true;
                 }
-                updateFavoritesFile = true;
+                //updateFavoritesFile = true;
+                SaveRequested = true;
             }
         }
-        if (updateFavoritesFile)
-        {
-            SaveFavoritesFile(favoritesFilePath);
-        }
+        //if (updateFavoritesFile)
+        //{
+        //    SaveFavoritesFile(favoritesFilePath);
+        //}
     }
 
     private void UnFavoriteSelectedSymbols()
@@ -226,7 +245,7 @@ public partial class MainWindow : Window
         {
             Favorites = [];
         }
-        bool updateFavoritesFile = false;
+        //bool updateFavoritesFile = false;
         foreach (object obj in ResultBox.SelectedItems)
         {
             if (obj is UnicodeSymbol symbol)
@@ -236,13 +255,14 @@ public partial class MainWindow : Window
                     Favorites.Remove(symbol.CodePoint);
                     symbol.Favorite = false;
                 }
-                updateFavoritesFile = true;
+                //updateFavoritesFile = true;
+                SaveRequested = true;
             }
         }
-        if (updateFavoritesFile)
-        {
-            SaveFavoritesFile(favoritesFilePath);
-        }
+        //if (updateFavoritesFile)
+        //{
+        //    SaveFavoritesFile(favoritesFilePath);
+        //}
     }
 
     private void HideSelectedSymbols()
@@ -251,7 +271,7 @@ public partial class MainWindow : Window
         {
             HiddenSymbols = [];
         }
-        bool updateHiddenSymbolsFile = false;
+        //bool updateHiddenSymbolsFile = false;
         foreach (object obj in ResultBox.SelectedItems)
         {
             if (obj is UnicodeSymbol symbol)
@@ -262,13 +282,14 @@ public partial class MainWindow : Window
                     HiddenSymbols.Add(symbol.CodePoint, symbol.Name);
                     symbol.Hidden = true;
                 }
-                updateHiddenSymbolsFile = true;
+                //updateHiddenSymbolsFile = true;
+                SaveRequested = true;
             }
         }
-        if (updateHiddenSymbolsFile)
-        {
-            SaveHiddenSymbolsFile(hiddenSymbolsFilePath);
-        }
+        //if (updateHiddenSymbolsFile)
+        //{
+        //    SaveHiddenSymbolsFile(hiddenSymbolsFilePath);
+        //}
     }
 
     private void UnHideSelectedSymbols()
@@ -277,7 +298,7 @@ public partial class MainWindow : Window
         {
             HiddenSymbols = [];
         }
-        bool updateHiddenSymbolsFile = false;
+        //bool updateHiddenSymbolsFile = false;
         foreach (object obj in ResultBox.SelectedItems)
         {
             if (obj is UnicodeSymbol symbol)
@@ -288,91 +309,92 @@ public partial class MainWindow : Window
                     HiddenSymbols.Remove(symbol.CodePoint);
                     symbol.Hidden = false;
                 }
-                updateHiddenSymbolsFile = true;
+                //updateHiddenSymbolsFile = true;
+                SaveRequested = true;
             }
         }
-        if (updateHiddenSymbolsFile)
-        {
-            SaveHiddenSymbolsFile(hiddenSymbolsFilePath);
-        }
+        //if (updateHiddenSymbolsFile)
+        //{
+        //    SaveHiddenSymbolsFile(hiddenSymbolsFilePath);
+        //}
     }
 
-    private void SaveHiddenSymbolsFile(string file)
-    {
-        string jsonString = JsonSerializer.Serialize(HiddenSymbols);
-        //string saveFilePath = @"data\hiddensymbols.txt";
-        string fullPath = System.IO.Path.GetFullPath(file);
-        Debug.WriteLine($"Save hidden symbols to path: {fullPath}");
-        File.WriteAllText(fullPath, jsonString);
-    }
+    //private void SaveHiddenSymbolsFile(string file)
+    //{
+    //    string jsonString = JsonSerializer.Serialize(HiddenSymbols);
+    //    //string saveFilePath = @"data\hiddensymbols.txt";
+    //    string fullPath = System.IO.Path.GetFullPath(file);
+    //    Debug.WriteLine($"Save hidden symbols to path: {fullPath}");
+    //    File.WriteAllText(fullPath, jsonString);
+    //}
 
-    private void SaveFavoritesFile(string file)
-    {
-        string jsonString = JsonSerializer.Serialize(Favorites);
-        string fullPath = System.IO.Path.GetFullPath(file);
-        Debug.WriteLine($"Save favorites to path: {fullPath}");
-        File.WriteAllText(fullPath, jsonString);
-    }
+    //private void SaveFavoritesFile(string file)
+    //{
+    //    string jsonString = JsonSerializer.Serialize(Favorites);
+    //    string fullPath = System.IO.Path.GetFullPath(file);
+    //    Debug.WriteLine($"Save favorites to path: {fullPath}");
+    //    File.WriteAllText(fullPath, jsonString);
+    //}
 
-    private void LoadHiddenSymbolsFile(string file)
-    {
-        string fullPath = System.IO.Path.GetFullPath(file);
-        Debug.WriteLine($"Load hidden symbols file from path: {fullPath}");
-        if (File.Exists(fullPath))
-        {
-            string jsonString = File.ReadAllText(fullPath);
-            HiddenSymbols = JsonSerializer.Deserialize<Dictionary<string, string>>(jsonString);
-        }
+    //private void LoadHiddenSymbolsFile(string file)
+    //{
+    //    string fullPath = System.IO.Path.GetFullPath(file);
+    //    Debug.WriteLine($"Load hidden symbols file from path: {fullPath}");
+    //    if (File.Exists(fullPath))
+    //    {
+    //        string jsonString = File.ReadAllText(fullPath);
+    //        HiddenSymbols = JsonSerializer.Deserialize<Dictionary<string, string>>(jsonString);
+    //    }
         
-        if (HiddenSymbols == null)
-        {
-            Debug.WriteLine($"Failed to load Hidden Symbols list, creating empty Dictionary.");
-            HiddenSymbols = [];
-        }
-        else
-        {
-            Debug.WriteLine($"Loaded Hidden Symbols list with {HiddenSymbols.Count} entries");
-        }
+    //    if (HiddenSymbols == null)
+    //    {
+    //        Debug.WriteLine($"Failed to load Hidden Symbols list, creating empty Dictionary.");
+    //        HiddenSymbols = [];
+    //    }
+    //    else
+    //    {
+    //        Debug.WriteLine($"Loaded Hidden Symbols list with {HiddenSymbols.Count} entries");
+    //    }
 
-        foreach (UnicodeSymbol symbol in Symbols)
-        {
-            if (HiddenSymbols.ContainsKey(symbol.CodePoint))
-            {
-                symbol.Hidden = true;
-                //Debug.WriteLine($"Hiding symbol {symbol.CodePoint} : {symbol.Name}");
-            }
-        }
-    }
+    //    foreach (UnicodeSymbol symbol in Symbols)
+    //    {
+    //        if (HiddenSymbols.ContainsKey(symbol.CodePoint))
+    //        {
+    //            symbol.Hidden = true;
+    //            //Debug.WriteLine($"Hiding symbol {symbol.CodePoint} : {symbol.Name}");
+    //        }
+    //    }
+    //}
 
-    private void LoadFavoritesFile(string file)
-    {
-        string fullPath = System.IO.Path.GetFullPath(file);
-        Debug.WriteLine($"Load favorites file from path: {fullPath}");
-        if (File.Exists(fullPath))
-        {
-            string jsonString = File.ReadAllText(fullPath);
-            Favorites = JsonSerializer.Deserialize<Dictionary<string, string>>(jsonString);
-        }
+    //private void LoadFavoritesFile(string file)
+    //{
+    //    string fullPath = System.IO.Path.GetFullPath(file);
+    //    Debug.WriteLine($"Load favorites file from path: {fullPath}");
+    //    if (File.Exists(fullPath))
+    //    {
+    //        string jsonString = File.ReadAllText(fullPath);
+    //        Favorites = JsonSerializer.Deserialize<Dictionary<string, string>>(jsonString);
+    //    }
         
-        if (Favorites == null)
-        {
-            Debug.WriteLine($"Failed to load Favorites list, creating empty Dictionary.");
-            Favorites = [];
-        }
-        else
-        {
-            Debug.WriteLine($"Loaded Favorits list with {Favorites.Count} entries");
-        }
+    //    if (Favorites == null)
+    //    {
+    //        Debug.WriteLine($"Failed to load Favorites list, creating empty Dictionary.");
+    //        Favorites = [];
+    //    }
+    //    else
+    //    {
+    //        Debug.WriteLine($"Loaded Favorits list with {Favorites.Count} entries");
+    //    }
 
-        foreach (UnicodeSymbol symbol in Symbols)
-        {
-            if (Favorites.ContainsKey(symbol.CodePoint))
-            {
-                symbol.Favorite = true;
-                //Debug.WriteLine($"Faving symbol {symbol.CodePoint} : {symbol.Name}");
-            }
-        }
-    }
+    //    foreach (UnicodeSymbol symbol in Symbols)
+    //    {
+    //        if (Favorites.ContainsKey(symbol.CodePoint))
+    //        {
+    //            symbol.Favorite = true;
+    //            //Debug.WriteLine($"Faving symbol {symbol.CodePoint} : {symbol.Name}");
+    //        }
+    //    }
+    //}
 
 
     private void ResultBox_KeyDown(object sender, KeyEventArgs e)
@@ -395,10 +417,12 @@ public partial class MainWindow : Window
         }
     }
 
+    UnicodeSymbol? currentSymbol = null;
     private void ResultBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         if (ResultBox.SelectedItem is UnicodeSymbol symbol)
         {
+            currentSymbol = symbol;
             Debug.WriteLine($"Showing info for symbol {symbol.Name}");
             TextboxSymbolName.Text = symbol.Name;
             TextboxSymbolGraphic.Text = symbol.Symbol;
@@ -406,6 +430,7 @@ public partial class MainWindow : Window
             TextblockSymbolCategory.Text = "Category: " + symbol.Category;
             TextblockISOcomment.Text = "ISO comment: " + symbol.ISOcomment;
             TextblockUnicode1Name.Text = "Unicode 1 name: " + symbol.Unicode_1_Name;
+            TextboxPersonalComment.Text = symbol.PersonalComment;
         }    
     }
 
@@ -417,5 +442,101 @@ public partial class MainWindow : Window
     private void ButtonUnHideSelected_Click(object sender, RoutedEventArgs e)
     {
         UnHideSelectedSymbols();
+    }
+
+    private void ButtonFavoriteSelected_Click(object sender, RoutedEventArgs e)
+    {
+        FavoriteSelectedSymbols();
+    }
+
+    private void ButtonUnFavoriteSelected_Click(object sender, RoutedEventArgs e)
+    {
+        UnFavoriteSelectedSymbols();
+    }
+
+    bool SaveRequested = false;
+    private void TextboxPersonalComment_TextChanged(object sender, TextChangedEventArgs e)
+    {
+        SaveRequested = true;
+        if (currentSymbol != null)
+        {
+            currentSymbol.PersonalComment = TextboxPersonalComment.Text;
+        }
+        if (ResultBox.SelectedItems.Count > 1) 
+        { 
+            foreach (var item in ResultBox.SelectedItems)
+            {
+                if (item is UnicodeSymbol symbol)
+                {
+                    symbol.PersonalComment = TextboxPersonalComment.Text;
+                }
+            }
+        }
+    }
+
+    private void LoadSymbolsFile()
+    {
+        string fullPath = System.IO.Path.GetFullPath(unicodeSymbolsFilePath);
+        Debug.WriteLine($"Load symbols from file: {fullPath}");
+
+        Symbols.Clear();
+        if (File.Exists(fullPath))
+        {
+            string[] lines = File.ReadAllLines(fullPath);
+            int counter = 0;
+            foreach (string line in lines)
+            {
+                
+                string[] entries = line.Split(';');
+                if (entries.Length >= 7)
+                {
+                    Symbols.Add(new UnicodeSymbol(entries[0], entries[1], entries[2], entries[3], entries[4], bool.Parse(entries[5]), bool.Parse(entries[6])));
+                }
+                else
+                {
+                    Debug.WriteLine($"Too few entries on line {counter} when loading symbols");
+                }
+                counter++;
+            }
+            Debug.WriteLine($"Added {counter} symbols from file");
+        }
+    }
+
+    private void SaveSymolsFile(bool forceSave = false)
+    {
+        if (SaveRequested || forceSave)
+        {
+            Debug.WriteLine($"Saving symbols file");
+            SaveRequested = false;
+            string fullPath = System.IO.Path.GetFullPath(unicodeSymbolsFilePath);
+            StringBuilder sb = new StringBuilder();
+            foreach (UnicodeSymbol symbol in Symbols)
+            {
+                // ( codepoint,  name,  category,  unicode_1_name,  personalcomment, bool favorite, bool hidden) 
+                sb.Append(symbol.CodePoint + ";");
+                sb.Append(symbol.Name + ";");
+                sb.Append(symbol.Category + ";");
+                sb.Append(symbol.Unicode_1_Name + ";");
+                sb.Append(symbol.PersonalComment + ";");
+                sb.Append(symbol.Favorite + ";");
+                sb.Append(symbol.Hidden + ";");
+                sb.AppendLine();
+            }
+            try
+            {
+                File.WriteAllText(fullPath, sb.ToString());
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine($"Couldn't save symbols file, exception:");
+                Debug.WriteLine(e.Message);
+            }
+        }
+    }
+
+    private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+    {
+        Debug.WriteLine($"Closing application, requesting save of symbols file");
+        SaveSymolsFile();
     }
 }

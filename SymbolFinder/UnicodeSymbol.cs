@@ -18,6 +18,23 @@ namespace SymbolFinder
         public string ISOcomment { get; set; }
         public string Unicode_1_Name { get; set; }
 
+        private string _personalComment = "";
+        public string PersonalComment
+        {
+            get
+            {
+                return _personalComment;
+            }
+            set
+            {
+                _personalComment = value.Replace(';',','); // prevent semicolons, used as separator in the symbols file
+                if (PropertyChanged != null)
+                {
+                    PropertyChanged(this, new PropertyChangedEventArgs("PersonalComment"));
+                }
+            }
+        }
+
         //This is all that the interface requires
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -63,7 +80,30 @@ namespace SymbolFinder
         //    CodePoint = number;
         //}
 
-        public UnicodeSymbol(string[] values)
+        public UnicodeSymbol(string codepoint, string name, string category, string unicode_1_name, string personalcomment, bool favorite, bool hidden) // import from custom symbol file
+        {
+            CodePoint = codepoint;
+            Name = name;
+            Category = category;
+            Unicode_1_Name = unicode_1_name;
+            ISOcomment = "";
+            PersonalComment = personalcomment;
+            Favorite = favorite;
+            Hidden = hidden;
+
+            int codeNumber = Convert.ToInt32(CodePoint, 16);
+            if (Name.Contains("surrogate", StringComparison.InvariantCultureIgnoreCase))
+            {
+                Symbol = "";
+                Hidden = true;
+            }
+            else
+            {
+                Symbol = char.ConvertFromUtf32(codeNumber);
+            }
+        }
+
+        public UnicodeSymbol(string[] values) // import from UnicodeData.txt from unicode.org
         {
             if (values.Length < (int)Importindex.END)
             {
@@ -75,6 +115,7 @@ namespace SymbolFinder
             Category = values[(int)Importindex.General_Category];
             Unicode_1_Name = values[(int)Importindex.Unicode_1_Name];
             ISOcomment = values[(int)Importindex.ISO_Comment];
+            PersonalComment = "";
 
             // skip any symbols marked as surrogate, otherwise ConvertFromUtf32 causes an exception. String matching is sufficient.
             // A high surrogate is a character in the range U+D800 through U+DBFF. A low surrogate is a character in the range U+DC00 through U+DFFF.
@@ -119,7 +160,7 @@ namespace SymbolFinder
         public bool Contains(string searchTerm, bool showHidden = false)
         {
             if (Hidden && !showHidden) return false;
-            return (Name.Contains(searchTerm, StringComparison.InvariantCultureIgnoreCase));
+            return (Name.Contains(searchTerm, StringComparison.InvariantCultureIgnoreCase) || PersonalComment.Contains(searchTerm, StringComparison.InvariantCultureIgnoreCase) || CodePoint.Contains(searchTerm, StringComparison.InvariantCultureIgnoreCase));
         }
     }
 }
