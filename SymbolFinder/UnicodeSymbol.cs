@@ -71,15 +71,6 @@ namespace SymbolFinder
             }
         }
 
-
-        //public UnicodeSymbol(string name, string symbol, int number)
-        //{
-        //    throw new NotImplementedException();
-        //    Name = name;
-        //    Symbol = symbol;
-        //    CodePoint = number;
-        //}
-
         public UnicodeSymbol(string codepoint, string name, string category, string unicode_1_name, string personalcomment, bool favorite, bool hidden) // import from custom symbol file
         {
             CodePoint = codepoint;

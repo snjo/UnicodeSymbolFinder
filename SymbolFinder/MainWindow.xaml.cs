@@ -34,26 +34,9 @@ public partial class MainWindow : Window
     public string favoritesFilePath = @"data\favorites.txt";
     public string unicodeDataFilePath = @"data\UnicodeData.txt"; // source file from the Unicode.org
     public string unicodeSymbolsFilePath = @"data\symbols.txt"; // the generated personal library file
+    string HexPrefix = "0x";
 
     System.Windows.Threading.DispatcherTimer saveTimer = new System.Windows.Threading.DispatcherTimer();
-    
-    /*
-        Code_Point;
-        Name;
-        General_Category;
-        Canonical_Combining_Class;
-        Bidi_Class;
-        Decomposition_Type_and_Decomposition_Mapping;
-        Numeric_Type;
-        Numeric_Value_for_Type_Digit;
-        Numeric_Value_for_Type_Numeric;
-        Bidi_Mirrored;
-        Unicode_1_Name;
-        ISO_Comment;
-        Simple_Uppercase_Mapping;
-        Simple_Lowercase_Mapping;
-        Simple_Titlecase_Mapping
-    */
 
     public MainWindow()
     {
@@ -69,9 +52,7 @@ public partial class MainWindow : Window
         
         this.DataContext = this;
         ResultBox.Items.Clear();
-        ResultBox.ItemsSource = SearchResults;
-        //LoadHiddenSymbolsFile(hiddenSymbolsFilePath);
-        //LoadFavoritesFile(favoritesFilePath);
+        ResultBox.ItemsSource = SearchResults;        
         saveTimer.Tick += new EventHandler(SaveTimer_Tick);
         saveTimer.Interval = new TimeSpan(0, 0, 30);
         saveTimer.Start();
@@ -172,6 +153,85 @@ public partial class MainWindow : Window
 
     private void ResultBox_MouseDoubleClick(object sender, MouseButtonEventArgs e)
     {
+        CopySelectedSymbolToClipboard();
+    }
+
+    private void ButtonCopySymbol_Click(object sender, RoutedEventArgs e)
+    {
+        CopySelectedSymbolToClipboard();
+    }
+
+    private void ButtonCopyAllSelectedSymbols_Click(object sender, RoutedEventArgs e)
+    {
+        CopyAllSelectedSymbols();
+    }
+
+    private void CopyAllSelectedSymbols()
+    {
+        if (ResultBox.SelectedItems.Count > 0)
+        {
+            StringBuilder sb = new();
+            foreach (var item in ResultBox.SelectedItems)
+            {
+                if (item is UnicodeSymbol symbol)
+                {
+                    sb.Append(symbol.Symbol);
+                }
+            }
+            if (sb.Length > 0)
+            {
+                try
+                {
+                    Clipboard.SetText(sb.ToString());
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Error copying to clipboard\n{ex.Message}");
+                }
+            }
+        }
+    }
+
+    private void ButtonCopyAllSelectedList_Click(object sender, RoutedEventArgs e)
+    {
+        CopyAllSelectedAsList();
+    }
+
+    private void CopyAllSelectedAsList()
+    {
+        if (ResultBox.SelectedItems.Count > 0)
+        {
+            StringBuilder sb = new();
+            foreach (var item in ResultBox.SelectedItems)
+            {
+                if (item is UnicodeSymbol symbol)
+                {
+                    sb.Append(HexPrefix + symbol.CodePoint + "\t");
+                    sb.Append(symbol.Symbol + "\t");
+                    sb.Append(symbol.Name);
+                    if (symbol.PersonalComment.Length > 0)
+                    {
+                        sb.Append(" - " + symbol.PersonalComment);
+                    }
+                    sb.AppendLine();
+                }
+            }
+            if (sb.Length > 0)
+            {
+                try
+                {
+                    Clipboard.SetText(sb.ToString());
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Error copying to clipboard\n{ex.Message}");
+                }
+            }
+        }
+    }
+
+    private void CopySelectedSymbolToClipboard()
+    {
         UnicodeSymbol? symbol = (UnicodeSymbol)ResultBox.SelectedItem;
         if (symbol != null)
         {
@@ -219,7 +279,6 @@ public partial class MainWindow : Window
         {
             Favorites = [];
         }
-        //bool updateFavoritesFile = false;
         foreach (object obj in ResultBox.SelectedItems)
         {
             if (obj is UnicodeSymbol symbol)
@@ -229,14 +288,9 @@ public partial class MainWindow : Window
                     Favorites.Add(symbol.CodePoint, symbol.Name);
                     symbol.Favorite = true;
                 }
-                //updateFavoritesFile = true;
                 SaveRequested = true;
             }
         }
-        //if (updateFavoritesFile)
-        //{
-        //    SaveFavoritesFile(favoritesFilePath);
-        //}
     }
 
     private void UnFavoriteSelectedSymbols()
@@ -245,7 +299,6 @@ public partial class MainWindow : Window
         {
             Favorites = [];
         }
-        //bool updateFavoritesFile = false;
         foreach (object obj in ResultBox.SelectedItems)
         {
             if (obj is UnicodeSymbol symbol)
@@ -255,14 +308,9 @@ public partial class MainWindow : Window
                     Favorites.Remove(symbol.CodePoint);
                     symbol.Favorite = false;
                 }
-                //updateFavoritesFile = true;
                 SaveRequested = true;
             }
         }
-        //if (updateFavoritesFile)
-        //{
-        //    SaveFavoritesFile(favoritesFilePath);
-        //}
     }
 
     private void HideSelectedSymbols()
@@ -271,7 +319,6 @@ public partial class MainWindow : Window
         {
             HiddenSymbols = [];
         }
-        //bool updateHiddenSymbolsFile = false;
         foreach (object obj in ResultBox.SelectedItems)
         {
             if (obj is UnicodeSymbol symbol)
@@ -282,14 +329,9 @@ public partial class MainWindow : Window
                     HiddenSymbols.Add(symbol.CodePoint, symbol.Name);
                     symbol.Hidden = true;
                 }
-                //updateHiddenSymbolsFile = true;
                 SaveRequested = true;
             }
         }
-        //if (updateHiddenSymbolsFile)
-        //{
-        //    SaveHiddenSymbolsFile(hiddenSymbolsFilePath);
-        //}
     }
 
     private void UnHideSelectedSymbols()
@@ -298,7 +340,6 @@ public partial class MainWindow : Window
         {
             HiddenSymbols = [];
         }
-        //bool updateHiddenSymbolsFile = false;
         foreach (object obj in ResultBox.SelectedItems)
         {
             if (obj is UnicodeSymbol symbol)
@@ -309,92 +350,10 @@ public partial class MainWindow : Window
                     HiddenSymbols.Remove(symbol.CodePoint);
                     symbol.Hidden = false;
                 }
-                //updateHiddenSymbolsFile = true;
                 SaveRequested = true;
             }
         }
-        //if (updateHiddenSymbolsFile)
-        //{
-        //    SaveHiddenSymbolsFile(hiddenSymbolsFilePath);
-        //}
     }
-
-    //private void SaveHiddenSymbolsFile(string file)
-    //{
-    //    string jsonString = JsonSerializer.Serialize(HiddenSymbols);
-    //    //string saveFilePath = @"data\hiddensymbols.txt";
-    //    string fullPath = System.IO.Path.GetFullPath(file);
-    //    Debug.WriteLine($"Save hidden symbols to path: {fullPath}");
-    //    File.WriteAllText(fullPath, jsonString);
-    //}
-
-    //private void SaveFavoritesFile(string file)
-    //{
-    //    string jsonString = JsonSerializer.Serialize(Favorites);
-    //    string fullPath = System.IO.Path.GetFullPath(file);
-    //    Debug.WriteLine($"Save favorites to path: {fullPath}");
-    //    File.WriteAllText(fullPath, jsonString);
-    //}
-
-    //private void LoadHiddenSymbolsFile(string file)
-    //{
-    //    string fullPath = System.IO.Path.GetFullPath(file);
-    //    Debug.WriteLine($"Load hidden symbols file from path: {fullPath}");
-    //    if (File.Exists(fullPath))
-    //    {
-    //        string jsonString = File.ReadAllText(fullPath);
-    //        HiddenSymbols = JsonSerializer.Deserialize<Dictionary<string, string>>(jsonString);
-    //    }
-        
-    //    if (HiddenSymbols == null)
-    //    {
-    //        Debug.WriteLine($"Failed to load Hidden Symbols list, creating empty Dictionary.");
-    //        HiddenSymbols = [];
-    //    }
-    //    else
-    //    {
-    //        Debug.WriteLine($"Loaded Hidden Symbols list with {HiddenSymbols.Count} entries");
-    //    }
-
-    //    foreach (UnicodeSymbol symbol in Symbols)
-    //    {
-    //        if (HiddenSymbols.ContainsKey(symbol.CodePoint))
-    //        {
-    //            symbol.Hidden = true;
-    //            //Debug.WriteLine($"Hiding symbol {symbol.CodePoint} : {symbol.Name}");
-    //        }
-    //    }
-    //}
-
-    //private void LoadFavoritesFile(string file)
-    //{
-    //    string fullPath = System.IO.Path.GetFullPath(file);
-    //    Debug.WriteLine($"Load favorites file from path: {fullPath}");
-    //    if (File.Exists(fullPath))
-    //    {
-    //        string jsonString = File.ReadAllText(fullPath);
-    //        Favorites = JsonSerializer.Deserialize<Dictionary<string, string>>(jsonString);
-    //    }
-        
-    //    if (Favorites == null)
-    //    {
-    //        Debug.WriteLine($"Failed to load Favorites list, creating empty Dictionary.");
-    //        Favorites = [];
-    //    }
-    //    else
-    //    {
-    //        Debug.WriteLine($"Loaded Favorits list with {Favorites.Count} entries");
-    //    }
-
-    //    foreach (UnicodeSymbol symbol in Symbols)
-    //    {
-    //        if (Favorites.ContainsKey(symbol.CodePoint))
-    //        {
-    //            symbol.Favorite = true;
-    //            //Debug.WriteLine($"Faving symbol {symbol.CodePoint} : {symbol.Name}");
-    //        }
-    //    }
-    //}
 
 
     private void ResultBox_KeyDown(object sender, KeyEventArgs e)
@@ -415,6 +374,14 @@ public partial class MainWindow : Window
         {
             UnFavoriteSelectedSymbols();
         }
+        if (e.Key == Key.C)
+        {
+            CopyAllSelectedSymbols();
+        }
+        if (e.Key == Key.L)
+        {
+            CopyAllSelectedAsList();
+        }
     }
 
     UnicodeSymbol? currentSymbol = null;
@@ -426,8 +393,8 @@ public partial class MainWindow : Window
             Debug.WriteLine($"Showing info for symbol {symbol.Name}");
             TextboxSymbolName.Text = symbol.Name;
             TextboxSymbolGraphic.Text = symbol.Symbol;
-            TextboxSymbolCodepoint.Text = symbol.CodePoint;
-            TextblockSymbolCategory.Text = "Category: " + symbol.Category;
+            TextboxSymbolCodepoint.Text = HexPrefix + symbol.CodePoint;
+            TextblockSymbolCategory.Text = "Category: " + UnicodeCategories.GetCategory(symbol.Category).Name;
             TextblockISOcomment.Text = "ISO comment: " + symbol.ISOcomment;
             TextblockUnicode1Name.Text = "Unicode 1 name: " + symbol.Unicode_1_Name;
             TextboxPersonalComment.Text = symbol.PersonalComment;
