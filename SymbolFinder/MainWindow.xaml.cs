@@ -25,7 +25,10 @@ public partial class MainWindow : Window
 {
 
     List<UnicodeSymbol> Symbols = [];
+    public UnicodeCategories unicodeCategories = new UnicodeCategories();
+
     public ObservableCollection<UnicodeSymbol> SearchResults = [];
+    public ObservableCollection<UnicodeCategory> CategoryList = [];
     public Dictionary<string, string>? HiddenSymbols = [];
     public Dictionary<string, string>? Favorites = [];
     public bool ShowHiddenSymbols { get; set; }
@@ -38,6 +41,8 @@ public partial class MainWindow : Window
     string HexPrefix = "0x";
 
     System.Windows.Threading.DispatcherTimer saveTimer = new System.Windows.Threading.DispatcherTimer();
+
+    
 
     public MainWindow()
     {
@@ -53,10 +58,22 @@ public partial class MainWindow : Window
         
         this.DataContext = this;
         ResultBox.Items.Clear();
-        ResultBox.ItemsSource = SearchResults;        
+        ResultBox.ItemsSource = SearchResults;
+        ListviewCategories.ItemsSource = CategoryList;
         saveTimer.Tick += new EventHandler(SaveTimer_Tick);
         saveTimer.Interval = new TimeSpan(0, 0, 30);
         saveTimer.Start();
+
+        CategoryList = [];
+        foreach (var category in UnicodeCategories.Instance.Categories)
+        {
+            CategoryList.Add(category.Value);
+            Debug.WriteLine($"Added {category.Value.LongName}");
+        }
+        ListviewCategories.ItemsSource = CategoryList;
+
+        //do a search to fill the list on launch
+        SearchSymbols(false, false);
     }
 
     private void SaveTimer_Tick(object? sender, EventArgs e)
@@ -84,7 +101,11 @@ public partial class MainWindow : Window
             bool addEntry = true;
             if (symbol.Contains(searchTerm, true))
             {
-                
+                if (UnicodeCategories.Instance.Categories[symbol.Category].Enabled == false)
+                {
+                    addEntry = false;
+                }
+
                 if (symbol.Hidden)
                 {
                     foundHiddenAmount++;
@@ -395,7 +416,7 @@ public partial class MainWindow : Window
             TextboxSymbolName.Text = symbol.Name;
             TextboxSymbolGraphic.Text = symbol.Symbol;
             TextboxSymbolCodepoint.Text = HexPrefix + symbol.CodePoint;
-            TextblockSymbolCategory.Text = "Category: " + UnicodeCategories.GetCategory(symbol.Category).Name;
+            TextblockSymbolCategory.Text = "Category: " + UnicodeCategories.GetCategoryName(symbol.Category);
             TextblockISOcomment.Text = "ISO comment: " + symbol.ISOcomment;
             TextblockUnicode1Name.Text = "Unicode 1 name: " + symbol.Unicode_1_Name;
             TextboxPersonalComment.Text = symbol.PersonalComment;
@@ -526,5 +547,21 @@ public partial class MainWindow : Window
         }
         TextblockFontSize.Text = "Font size: " + ResultFontSize.FontSize.ToString();
         ResultBox.Items.Refresh();
+    }
+
+    private void ButtonSelectAllCategories_Click(object sender, RoutedEventArgs e)
+    {
+        foreach (UnicodeCategory cat in CategoryList)
+        {
+            cat.Enabled = true;
+        }
+    }
+
+    private void ButtonSelectNoCategories_Click(object sender, RoutedEventArgs e)
+    {
+        foreach (UnicodeCategory cat in CategoryList)
+        {
+            cat.Enabled = false;
+        }
     }
 }
