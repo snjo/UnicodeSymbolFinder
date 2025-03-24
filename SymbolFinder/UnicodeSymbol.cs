@@ -167,7 +167,7 @@ namespace SymbolFinder
             END
         }
 
-        public bool Contains(string searchTerm, bool showHidden = false)
+        public bool Contains(string searchTerm, bool showHidden)
         {
             if (Hidden && !showHidden) return false;
             return (Name.Contains(searchTerm, StringComparison.InvariantCultureIgnoreCase) || PersonalComment.Contains(searchTerm, StringComparison.InvariantCultureIgnoreCase) || CodePoint.Contains(searchTerm, StringComparison.InvariantCultureIgnoreCase));

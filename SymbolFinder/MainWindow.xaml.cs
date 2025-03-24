@@ -73,7 +73,9 @@ public partial class MainWindow : Window
         ListviewCategories.ItemsSource = CategoryList;
 
         //do a search to fill the list on launch
-        SearchSymbols(false, false);
+        SearchResults = SearchSymbols(Symbols, TextboxSearch.Text, false, false);
+        ResultBox.ItemsSource = SearchResults;
+        Debug.WriteLine($"Start Results: {SearchResults.Count}");
     }
 
     private void SaveTimer_Tick(object? sender, EventArgs e)
@@ -83,24 +85,137 @@ public partial class MainWindow : Window
 
     private void ClickSearch(object sender, RoutedEventArgs e)
     {
-        SearchSymbols(ShowHiddenSymbols, ShowFavoritesOnly);
+        SearchSymbolsWithConditions(ShowHiddenSymbols, ShowFavoritesOnly);
     }
 
-    private void SearchSymbols(bool showHidden, bool showFavoritesOnly)
+    private void SearchSymbolsWithConditions(bool showHidden, bool showFavoritesOnly)
     {
         string searchTerm = TextboxSearch.Text;
-
-        SearchResults.Clear();
-
-        int foundAmount = 0;
-        int foundHiddenAmount = 0;
         
+        List<UnicodeSymbol> results = [];
 
+        // escape clauses to default to regular search
+        if (searchTerm.Length == 0)
+        {
+            SearchResults = SearchSymbols(Symbols, TextboxSearch.Text, showHidden, showFavoritesOnly);
+            ResultBox.ItemsSource = SearchResults;
+            return;
+        }
+        if (searchTerm.Contains('+') == false && searchTerm.Contains('-') == false)
+        {
+            SearchResults = SearchSymbols(Symbols, TextboxSearch.Text, showHidden, showFavoritesOnly);
+            ResultBox.ItemsSource = SearchResults;
+            return;
+        }
+
+
+        List<string> includeTerms = [];
+        List<string> excludeTerms = [];
+
+        int i = 0;
+        string currentTerm = string.Empty;
+        bool inclusive = true;
+        while (i < searchTerm.Length)
+        {
+            char c = searchTerm[i];
+
+            if (c == '+' || c == '-')
+            {
+                if (inclusive && currentTerm.Length > 0)
+                {
+                    includeTerms.Add(currentTerm);
+                    Debug.WriteLine($"  + Add INCLUDE term {currentTerm}");
+                    currentTerm = string.Empty;
+                }
+                else if (currentTerm.Length > 0)
+                {
+                    excludeTerms.Add(currentTerm);
+                    Debug.WriteLine($"  - Add EXCLUDE term {currentTerm}");
+                    currentTerm = string.Empty;
+                }
+            }
+            
+            if (c == '+')
+            {
+                inclusive = true;
+            }
+            else if (c == '-')
+            {
+                inclusive = false;
+            }
+            else
+            {
+                currentTerm += c;
+            }
+
+            i++;
+        }
+        // add the final term
+        if (inclusive && currentTerm.Length > 0)
+        {
+            includeTerms.Add(currentTerm);
+            Debug.WriteLine($"  + Add INCLUDE term {currentTerm}");
+        }
+        else if (currentTerm.Length > 0)
+        {
+            excludeTerms.Add(currentTerm);
+            Debug.WriteLine($"  - Add EXCLUDE term {currentTerm}");
+        }
+
+        // there must something to search for, so if all terms are exclude, exclude from the full list
+        if (includeTerms.Count == 0)
+        {
+            includeTerms.Add("");
+        }
+        
         foreach (UnicodeSymbol symbol in Symbols)
         {
+            bool includeSymbol = true;
+            foreach (string term in includeTerms)
+            {
+                if (symbol.Contains(term, true) == false)
+                {
+                    includeSymbol = false;
+                    break;
+                }
+            }
+
+            foreach (string term in excludeTerms)
+            {
+                if (symbol.Contains(term, true) == true)
+                {
+                    includeSymbol = false;
+                    break;
+                }
+            }
+
+            if (includeSymbol)
+            {
+                results.Add(symbol);
+            }
+        }
+
+        SearchResults.Clear();
+        SearchResults = SearchSymbols(results, "", showHidden, showFavoritesOnly);
+        ResultBox.ItemsSource = SearchResults;
+    }
+
+    private ObservableCollection<UnicodeSymbol> SearchSymbols(List<UnicodeSymbol> symbolList, string searchTerm, bool showHidden, bool showFavoritesOnly)
+    {
+        ObservableCollection<UnicodeSymbol> results = [];
+
+        // ints to display the search result label next to the search box
+        int foundAmount = 0;
+        int foundHiddenAmount = 0;
+
+        foreach (UnicodeSymbol symbol in symbolList)
+        {
+            // all symbols default to being shown in the search results if the search term hits, but can be hidden by criteria below
             bool addEntry = true;
             if (symbol.Contains(searchTerm, true))
             {
+                // only show symbols that are enabled in the categeries list, or more precisely, don't show them if they're off.
+                // that way, if a symbol has an unknown category it will always be shown as a failsafe
                 if (UnicodeCategories.Instance.Categories[symbol.Category].Enabled == false)
                 {
                     addEntry = false;
@@ -126,7 +241,7 @@ public partial class MainWindow : Window
                 if (addEntry)
                 {
                     foundAmount++;
-                    SearchResults.Add(symbol);
+                    results.Add(symbol);
                     //Debug.WriteLine($"Adding entry {symbol.Name}");
                 }
             }
@@ -141,11 +256,14 @@ public partial class MainWindow : Window
         {
             TextblockSearchCount.Text = $"Found {foundAmount} ({foundHiddenAmount} symbols hidden)";
         }
-        //Debug.WriteLine($"Found {foundAmount} among {Symbols.Count} matching {searchTerm}. {foundHiddenAmount} were hidden");
+        return results;
     }
 
     private void LoadUnicodeFile(string filename)
     {
+        // load the raw UnicodeData.txt file from unicode.org, and fill the symbol dictionary
+        // only used if there's no symbols.txt already generated
+
         if (File.Exists(filename) == false)
         {
             Debug.WriteLine($"No such unicode text file: {filename}");
@@ -291,7 +409,7 @@ public partial class MainWindow : Window
     {
         if (e.Key == Key.Enter)
         {
-            SearchSymbols(ShowHiddenSymbols, ShowFavoritesOnly);
+            SearchSymbolsWithConditions(ShowHiddenSymbols, ShowFavoritesOnly);
         }
     }
 
