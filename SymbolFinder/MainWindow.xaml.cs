@@ -68,7 +68,7 @@ public partial class MainWindow : Window
         foreach (var category in UnicodeCategories.Instance.Categories)
         {
             CategoryList.Add(category.Value);
-            Debug.WriteLine($"Added {category.Value.LongName}");
+            //Debug.WriteLine($"Added {category.Value.LongName}");
         }
         ListviewCategories.ItemsSource = CategoryList;
 
@@ -299,16 +299,17 @@ public partial class MainWindow : Window
     {
         if (Favorites == null)
         {
+            Debug.WriteLine($"Favorites was null, creating empty list");
             Favorites = [];
         }
         foreach (object obj in ResultBox.SelectedItems)
         {
             if (obj is UnicodeSymbol symbol)
             {
+                symbol.Favorite = true;
                 if (Favorites.ContainsKey(symbol.CodePoint) == false)
                 {
                     Favorites.Add(symbol.CodePoint, symbol.Name);
-                    symbol.Favorite = true;
                 }
                 SaveRequested = true;
             }
@@ -319,16 +320,17 @@ public partial class MainWindow : Window
     {
         if (Favorites == null)
         {
+            Debug.WriteLine($"Favorites was null, creating empty list");
             Favorites = [];
         }
         foreach (object obj in ResultBox.SelectedItems)
         {
             if (obj is UnicodeSymbol symbol)
             {
+                symbol.Favorite = false;
                 if (Favorites.ContainsKey(symbol.CodePoint) == true)
                 {
                     Favorites.Remove(symbol.CodePoint);
-                    symbol.Favorite = false;
                 }
                 SaveRequested = true;
             }
@@ -345,11 +347,11 @@ public partial class MainWindow : Window
         {
             if (obj is UnicodeSymbol symbol)
             {
-                //Debug.WriteLine($"Hide symbol {symbol.CodePoint} : {symbol.Name}");
+                symbol.Hidden = true;
                 if (HiddenSymbols.ContainsKey(symbol.CodePoint) == false)
                 {
                     HiddenSymbols.Add(symbol.CodePoint, symbol.Name);
-                    symbol.Hidden = true;
+                    
                 }
                 SaveRequested = true;
             }
@@ -366,11 +368,10 @@ public partial class MainWindow : Window
         {
             if (obj is UnicodeSymbol symbol)
             {
-                //Debug.WriteLine($"Unhide symbol {symbol.CodePoint} : {symbol.Name}");
+                symbol.Hidden = false;
                 if (HiddenSymbols.ContainsKey(symbol.CodePoint) == true)
                 {
-                    HiddenSymbols.Remove(symbol.CodePoint);
-                    symbol.Hidden = false;
+                    HiddenSymbols.Remove(symbol.CodePoint);   
                 }
                 SaveRequested = true;
             }
@@ -412,7 +413,7 @@ public partial class MainWindow : Window
         if (ResultBox.SelectedItem is UnicodeSymbol symbol)
         {
             currentSymbol = symbol;
-            Debug.WriteLine($"Showing info for symbol {symbol.Name}");
+            //Debug.WriteLine($"Showing info for symbol {symbol.Name}");
             TextboxSymbolName.Text = symbol.Name;
             TextboxSymbolGraphic.Text = symbol.Symbol;
             TextboxSymbolCodepoint.Text = HexPrefix + symbol.CodePoint;
@@ -531,7 +532,7 @@ public partial class MainWindow : Window
 
     private void ButtonFontPlus_Click(object sender, RoutedEventArgs e)
     {
-        Debug.WriteLine($"Setting font size {ResultFontSize.FontSize}");
+        //Debug.WriteLine($"Setting font size {ResultFontSize.FontSize}");
         ResultFontSize.FontSize += 5;
         TextblockFontSize.Text = "Font size: " + ResultFontSize.FontSize.ToString();
         ResultBox.Items.Refresh();
@@ -539,7 +540,7 @@ public partial class MainWindow : Window
 
     private void ButtonFontMinus_Click(object sender, RoutedEventArgs e)
     {
-        Debug.WriteLine($"Setting font size {ResultFontSize.FontSize}");
+        //Debug.WriteLine($"Setting font size {ResultFontSize.FontSize}");
         ResultFontSize.FontSize -= 5;
         if (ResultFontSize.FontSize < 10)
         {
