@@ -20,8 +20,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="Fonts\NotoSans.ttf" />
-    <Resource Include="Fonts\NotoSansSymbols.ttf" />
     <Resource Include="thinkingface16.png" />
     <Resource Include="thinkingface32.png" />
   </ItemGroup>
