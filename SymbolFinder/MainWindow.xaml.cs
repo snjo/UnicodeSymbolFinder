@@ -285,6 +285,16 @@ public partial class MainWindow : Window
         return results;
     }
 
+    private HashSet<string> CreateSymbolHashes()
+    {
+        HashSet<string> values = new();
+        foreach (UnicodeSymbol symbol in Symbols)
+        {
+            values.Add(symbol.CodePoint);
+        }
+        return values;
+    }
+
     private void LoadUnicodeFile(string filename)
     {
         // load the raw UnicodeData.txt file from unicode.org, and fill the symbol dictionary
@@ -299,19 +309,34 @@ public partial class MainWindow : Window
 
         DateTime before = DateTime.Now;
 
-        int counter = 0; // test safeguard, implement timer if read takes too long
+        int counterNew = 0; // test safeguard, implement timer if read takes too long
+        int counterDuplicate = 0;
+
+        // create a hashSet to very quickly look for duplicate symbols, much faster than comparing lists.
+        HashSet<string> symbolHashSet = CreateSymbolHashes();
+
         foreach (string line in unicodeLines)
         {
             string[] values = line.Split(';');
             if (values.Length < 5)
             {
-                Debug.WriteLine($"Too few values on line {counter}");
+                Debug.WriteLine($"Too few values on line {counterNew}");
                 continue;
             }
             
-            Symbols.Add(new UnicodeSymbol(this, values));
-            counter++;
+            if (symbolHashSet.Contains(values[0]) == false)
+            {
+                Symbols.Add(new UnicodeSymbol(this, values));
+                SaveRequested = true;
+                counterNew++;
+            }
+            else
+            {
+                counterDuplicate++;
+            }
         }
+
+        Debug.WriteLine($"Added {counterNew} symbols, skipped {counterDuplicate} duplicate entries");
 
         TimeSpan processingTime = DateTime.Now - before;
         Debug.WriteLine($"Read all line in {(int)processingTime.TotalSeconds}s {processingTime.Milliseconds}");
@@ -708,5 +733,15 @@ public partial class MainWindow : Window
         {
             cat.Enabled = false;
         }
+    }
+
+    private void MenuExit_Click(object sender, RoutedEventArgs e)
+    {
+        this.Close();
+    }
+
+    private void MenuUpdateUnicodeData_Click(object sender, RoutedEventArgs e)
+    {
+        LoadUnicodeFile(unicodeDataFilePath);
     }
 }
