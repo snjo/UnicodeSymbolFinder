@@ -40,6 +40,15 @@ public partial class MainWindow : Window
     public string unicodeSymbolsFilePath = @"data\symbols.txt"; // the generated personal library file
     string HexPrefix = "0x";
 
+    //font selector objects
+    public string selectedFont { get; set; } = "Comic Sans";
+
+    public static readonly DependencyProperty MyFontFamilyProperty =
+        DependencyProperty.Register("MyFontFamily",
+        typeof(FontFamily), typeof(MainWindow), new UIPropertyMetadata(null));
+
+
+    // periodic timer
     System.Windows.Threading.DispatcherTimer saveTimer = new System.Windows.Threading.DispatcherTimer();
 
     
@@ -71,6 +80,23 @@ public partial class MainWindow : Window
             //Debug.WriteLine($"Added {category.Value.LongName}");
         }
         ListviewCategories.ItemsSource = CategoryList;
+
+        //create font list
+        foreach (FontFamily fontFamily in Fonts.SystemFontFamilies)
+        {
+            // FontFamily.Source contains the font family name.
+            //comboBoxFonts.Items.Add(fontFamily.Source);
+            Debug.WriteLine($"font: {fontFamily.Source}");
+            if (fontFamily.Source == ("Segoe UI Emoji") || fontFamily.Source == ("Segoe UI") || fontFamily.Source == "Arial")
+            {
+                Debug.WriteLine($"Found font preference {fontFamily.Source}");
+                comboBoxFonts.SelectedItem = fontFamily;
+                // continue until end, luckily Segoe UI Emoji is last in the list, so it wins
+            }
+        }
+
+
+
 
         //do a search to fill the list on launch
         SearchResults = SearchSymbols(Symbols, TextboxSearch.Text, false, false);
