@@ -71,18 +71,23 @@ This does not affect the values copied to the clipboard, since that uses plain u
 ## Saved values
 
 Custom comments, favorites and hidden symbols are saved to a file in the application's data subfolder:
+
     data\symbols.txt
 
-To remove any preset favorites or hidden symbols, either select all symbols in the application or delete this file. Deleting the file also deletes any useful comments on the symbol.
+To remove any preset favorites or hidden symbols, either select all symbols in the application and unhide/unfavorite, or delete symbols.txt file.
+
+Warning: Deleting the file also deletes any useful comments on the symbols.
 
 ## Loading updated unicode symbols
 
 Download the newest unicode symbols file from:
 https://www.unicode.org/Public/UNIDATA/UnicodeData.txt
 
-Delete the existing symbols.txt in the application's *data* folder, and replace the UnicodeData.txt with the newer file.
+Place the file in the application's *data* folder:
 
-This will fully replace your saved information, removing any comments, favorites and hidden tags.
+    data\UnicodeData.txt
+
+Then use the menu option **File > Update Unicode Data**
 
 ## Screenshot
 
