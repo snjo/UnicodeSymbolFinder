@@ -162,6 +162,8 @@
                         <TextBlock x:Name="TextblockSymbolCategory" Margin="10 2" FontSize="15" Text="Category:"/>
                         <TextBlock x:Name="TextblockISOcomment" Margin="10 2" FontSize="15" Text="ISO comment:"/>
                         <TextBlock x:Name="TextblockUnicode1Name" Margin="10 2" FontSize="15" Text="Unicode 1 name:"/>
+                        <TextBlock x:Name="TextblockFontSupport" Margin="10 2" FontSize="15" Text="Supported current font: ?"/>
+                        <TextBlock x:Name="TextblockFontSupportCount" Margin="10 2" FontSize="15" Text="Supported by ? installed fonts"/>
                     </StackPanel>
                 </Grid>
             </Grid>

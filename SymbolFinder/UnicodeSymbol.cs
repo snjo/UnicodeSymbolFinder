@@ -14,6 +14,7 @@ namespace SymbolFinder
         public string Name { get; set; } // the display name of the character
         public string Symbol { get; set; } // the actual unicode symbol character
         public string CodePoint { get; set; } // unicode hex code
+        public int CodeNumber {  get; set; } // hex code converted to int
         public string Category { get; set; } // unicode symbol Category
         public string ISOcomment { get; set; }
         public string Unicode_1_Name { get; set; }
@@ -100,7 +101,7 @@ namespace SymbolFinder
             Favorite = favorite;
             Hidden = hidden;
 
-            int codeNumber = Convert.ToInt32(CodePoint, 16);
+            CodeNumber = Convert.ToInt32(CodePoint, 16);
             if (Name.Contains("surrogate", StringComparison.InvariantCultureIgnoreCase))
             {
                 Symbol = "";
@@ -108,7 +109,7 @@ namespace SymbolFinder
             }
             else
             {
-                Symbol = char.ConvertFromUtf32(codeNumber);
+                Symbol = char.ConvertFromUtf32(CodeNumber);
             }
         }
 
@@ -121,7 +122,7 @@ namespace SymbolFinder
             }
             Name = values[(int)Importindex.Name];
             CodePoint = values[(int)Importindex.Code_Point];
-            int codeNumber = Convert.ToInt32(CodePoint, 16);
+            CodeNumber = Convert.ToInt32(CodePoint, 16);
             Category = values[(int)Importindex.General_Category];
             Unicode_1_Name = values[(int)Importindex.Unicode_1_Name];
             ISOcomment = values[(int)Importindex.ISO_Comment];
@@ -136,7 +137,7 @@ namespace SymbolFinder
             }
             else
             {
-                Symbol = char.ConvertFromUtf32(codeNumber);
+                Symbol = char.ConvertFromUtf32(CodeNumber);
             }
 
             //Debug.WriteLine($"Name: {Name}   Codepoint: {CodePoint}   Symbol: {Symbol}.");

@@ -11,6 +11,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Markup;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
@@ -77,16 +78,12 @@ public partial class MainWindow : Window
         foreach (var category in UnicodeCategories.Instance.Categories)
         {
             CategoryList.Add(category.Value);
-            //Debug.WriteLine($"Added {category.Value.LongName}");
         }
         ListviewCategories.ItemsSource = CategoryList;
 
         //create font list
         foreach (FontFamily fontFamily in Fonts.SystemFontFamilies)
         {
-            // FontFamily.Source contains the font family name.
-            //comboBoxFonts.Items.Add(fontFamily.Source);
-            Debug.WriteLine($"font: {fontFamily.Source}");
             if (fontFamily.Source == ("Segoe UI Emoji") || fontFamily.Source == ("Segoe UI") || fontFamily.Source == "Arial")
             {
                 Debug.WriteLine($"Found font preference {fontFamily.Source}");
@@ -94,9 +91,6 @@ public partial class MainWindow : Window
                 // continue until end, luckily Segoe UI Emoji is last in the list, so it wins
             }
         }
-
-
-
 
         //do a search to fill the list on launch
         SearchResults = SearchSymbols(Symbols, TextboxSearch.Text, false, false);
@@ -590,7 +584,75 @@ public partial class MainWindow : Window
             TextblockISOcomment.Text = "ISO comment: " + symbol.ISOcomment;
             TextblockUnicode1Name.Text = "Unicode 1 name: " + symbol.Unicode_1_Name;
             TextboxPersonalComment.Text = symbol.PersonalComment;
+
+            // check for glyph (symbol) support in the font list
+
+            (bool supportedByCurrentFont, int supportCount, List<string> supportingFamilies) = CheckFamiliesSupportingChar(symbol.Symbol, symbol.CodeNumber, comboBoxFonts.SelectedItem as FontFamily);
+            //Debug.WriteLine($"Checked symbol {symbol.CodeNumber}, {symbol.CodePoint}, {symbol.Symbol}, {symbol.Name}");
+            TextblockFontSupport.Text = $"Supported by selected font: {supportedByCurrentFont}";
+            TextblockFontSupportCount.Text = $"Supported by {supportCount} installed fonts";
+            for (int i = 0; i < supportingFamilies.Count; i++)
+            {
+                if (i > 10)
+                {
+                    TextblockFontSupportCount.Text += $"\n   ... and more";
+                    break;
+                }
+                TextblockFontSupportCount.Text += $"\n   {supportingFamilies[i]}";
+            }
+
         }    
+    }
+
+    private static (bool, int, List<string>) CheckFamiliesSupportingChar(string symbolString, int codeNumber, FontFamily? currentFont)
+    {
+        // https://stackoverflow.com/questions/5604855/how-to-determine-which-fonts-contain-a-specific-character
+
+        //Debug.WriteLine($"Checking availability of character '{symbolString}'");
+
+        int fontCount = 0;
+        int compatibleFontCount = 0;
+        //ICollection<FontFamily> fontFamilies = Fonts.GetFontFamilies(@"C:\Windows\Fonts\");
+        var fontFamilies = Fonts.SystemFontFamilies;
+        //Debug.WriteLine($"Found {fontFamilies.Count} fonts");
+        ushort glyphIndex;
+        GlyphTypeface glyph;
+        string familyName;
+        List<string> supportingFamilies = [];
+
+        bool currentFontSupportsGlyph = false;
+
+        foreach (FontFamily family in fontFamilies)
+        {
+            
+            //Debug.WriteLine($"    Font {fontCount}: {family.Source}");
+            var typefaces = family.GetTypefaces();
+            foreach (Typeface typeface in typefaces)
+            {
+                typeface.TryGetGlyphTypeface(out glyph);
+                if (glyph != null && glyph.CharacterToGlyphMap.TryGetValue(codeNumber, out glyphIndex))
+                {
+                    family.FamilyNames.TryGetValue(XmlLanguage.GetLanguage("en-us"), out familyName);
+                    //Debug.WriteLine(familyName + " supports ");
+                    supportingFamilies.Add(familyName);
+
+                    if (currentFont != null)
+                    {
+                        if (family == currentFont)
+                        {
+                            currentFontSupportsGlyph = true;
+                        }
+                    }
+
+                    compatibleFontCount++;
+                    break;
+                }
+            }
+            fontCount++;
+        }
+        
+        //Debug.WriteLine($"Total {compatibleFontCount} fonts support {symbolString} {codeNumber}");
+        return (currentFontSupportsGlyph, compatibleFontCount, supportingFamilies);
     }
 
     private void ButtonHideSelected_Click(object sender, RoutedEventArgs e)
