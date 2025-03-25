@@ -80,6 +80,10 @@ To remove any preset favorites or hidden symbols, either select all symbols in t
 Download the newest unicode symbols file from:
 https://www.unicode.org/Public/UNIDATA/UnicodeData.txt
 
-Delete the existing symbols.txt in the data folder, and replace the UnicodeData.txt with the newer file.
+Delete the existing symbols.txt in the application's *data* folder, and replace the UnicodeData.txt with the newer file.
 
 This will fully replace your saved information, removing any comments, favorites and hidden tags.
+
+## Screenshot
+
+![Image](symbolfinder_screenshot.png)
