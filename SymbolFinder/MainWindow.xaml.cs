@@ -744,4 +744,24 @@ public partial class MainWindow : Window
     {
         LoadUnicodeFile(unicodeDataFilePath);
     }
+
+    public static void OpenLink(string url)
+    {
+        Process.Start(new ProcessStartInfo() { FileName = url, UseShellExecute = true });
+    }
+
+    private void MenuHelpDocumentation_Click(object sender, RoutedEventArgs e)
+    {
+        OpenLink("https://github.com/snjo/UnicodeSymbolFinder/blob/master/README.md");
+    }
+
+    private void MenuAbout_Click(object sender, RoutedEventArgs e)
+    {
+        MessageBox.Show("Unicode Symbol Finder\n\nby Andreas Aakvik Gogstad\n2025");
+    }
+
+    private void MenuSourceCode_Click(object sender, RoutedEventArgs e)
+    {
+        OpenLink("https://github.com/snjo/UnicodeSymbolFinder");
+    }
 }

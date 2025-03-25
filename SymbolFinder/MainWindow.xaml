@@ -27,6 +27,9 @@
                         <MenuItem Header="E_xit" Name="MenuExit" Click="MenuExit_Click"/>
                     </MenuItem>
                     <MenuItem Header="_Help">
+                        <MenuItem Header="Documentation (on Github)" Name="MenuHelpDocumentation" Click="MenuHelpDocumentation_Click"/>
+                        <MenuItem Header="Source Code (on Github)" Name="MenuSourceCode" Click="MenuSourceCode_Click"/>
+                        <MenuItem Header="About" Name="MenuAbout" Click="MenuAbout_Click"/>
                     </MenuItem>
                 </Menu>
 
