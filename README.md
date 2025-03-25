@@ -86,4 +86,4 @@ This will fully replace your saved information, removing any comments, favorites
 
 ## Screenshot
 
-![Image](symbolfinder_screenshot.png)
+![Image](screenshot.png)
