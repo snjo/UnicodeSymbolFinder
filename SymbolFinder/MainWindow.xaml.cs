@@ -41,6 +41,8 @@ public partial class MainWindow : Window
     public string unicodeSymbolsFilePath = @"data\symbols.txt"; // the generated personal library file
     string HexPrefix = "0x";
 
+    bool SaveRequested = false;
+
     //font selector objects
     public string selectedFont { get; set; } = "Comic Sans";
 
@@ -581,7 +583,6 @@ public partial class MainWindow : Window
             TextboxSymbolGraphic.Text = symbol.Symbol;
             TextboxSymbolCodepoint.Text = HexPrefix + symbol.CodePoint;
             TextblockSymbolCategory.Text = "Category: " + UnicodeCategories.GetCategoryName(symbol.Category);
-            TextblockISOcomment.Text = "ISO comment: " + symbol.ISOcomment;
             TextblockUnicode1Name.Text = "Unicode 1 name: " + symbol.Unicode_1_Name;
             TextboxPersonalComment.Text = symbol.PersonalComment;
 
@@ -675,7 +676,7 @@ public partial class MainWindow : Window
         UnFavoriteSelectedSymbols();
     }
 
-    bool SaveRequested = false;
+    
     private void TextboxPersonalComment_TextChanged(object sender, TextChangedEventArgs e)
     {
         SaveRequested = true;

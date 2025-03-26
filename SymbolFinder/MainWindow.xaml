@@ -105,9 +105,9 @@
                 </Grid>
                 <Grid Grid.Column="1">
                     <ListView x:Name="ResultBox" Margin="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
-                              FontSize="12" FontFamily="{Binding ElementName=comboBoxFonts, Path=SelectedItem}" 
+                              FontSize="12"
                               MouseDoubleClick="ResultBox_MouseDoubleClick" KeyDown="ResultBox_KeyDown" SelectionChanged="ResultBox_SelectionChanged">
-                        
+
                         <ListView.ItemContainerStyle>
                             <Style TargetType="{x:Type ListViewItem}">
                                 <Style.Triggers>
@@ -133,7 +133,13 @@
                         <ListView.View>
                             <GridView AllowsColumnReorder="False">
                                 <GridViewColumn DisplayMemberBinding="{Binding CodePoint}" Header="Code" Width="100"/>
-                                <GridViewColumn DisplayMemberBinding="{Binding Symbol}" Header="Symbol" Width="50"/>
+                                <GridViewColumn Header="Symbol" Width="50">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock x:Name="SymbolColumn" FontFamily="{Binding ElementName=comboBoxFonts, Path=SelectedItem}"  Foreground="Black" Text="{Binding Symbol}"/>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
                                 <GridViewColumn DisplayMemberBinding="{Binding Name}" Header="Name" Width="300"/>
                                 <GridViewColumn DisplayMemberBinding="{Binding PersonalComment}" Header="My comment" Width="200"/>
                             </GridView>
@@ -160,9 +166,8 @@
                         <TextBlock Text="My comment:" Margin="10 5 0 0" FontSize="15" FontStyle="Italic" VerticalAlignment="Center"/>
                         <TextBox x:Name="TextboxPersonalComment" Margin="10 5 10 10" TextChanged="TextboxPersonalComment_TextChanged" FontSize="15" Text="" Background="White" IsReadOnly="False" BorderBrush="Black" VerticalAlignment="Center"/>
                         <TextBlock x:Name="TextblockSymbolCategory" Margin="10 2" FontSize="15" Text="Category:"/>
-                        <TextBlock x:Name="TextblockISOcomment" Margin="10 2" FontSize="15" Text="ISO comment:"/>
                         <TextBlock x:Name="TextblockUnicode1Name" Margin="10 2" FontSize="15" Text="Unicode 1 name:"/>
-                        <TextBlock x:Name="TextblockFontSupport" Margin="10 2" FontSize="15" Text="Supported current font: ?"/>
+                        <TextBlock x:Name="TextblockFontSupport" Margin="10 2" FontSize="15" Text="Supported by selected font: ?"/>
                         <TextBlock x:Name="TextblockFontSupportCount" Margin="10 2" FontSize="15" Text="Supported by ? installed fonts"/>
                     </StackPanel>
                 </Grid>

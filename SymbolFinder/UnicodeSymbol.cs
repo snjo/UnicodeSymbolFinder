@@ -161,7 +161,7 @@ namespace SymbolFinder
             Numeric_Value_for_Type_Numeric = 8,
             Bidi_Mirrored = 9,
             Unicode_1_Name = 10,
-            ISO_Comment = 11,
+            ISO_Comment = 11, // not in use in the UnicodData.txt file
             Simple_Uppercase_Mapping = 12,
             Simple_Lowercase_Mapping = 13,
             Simple_Titlecase_Mapping = 14,
