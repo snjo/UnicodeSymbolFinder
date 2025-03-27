@@ -188,7 +188,7 @@
                 <Button Name="ButtonFontMinus" Content="-" Click="ButtonFontMinus_Click" VerticalAlignment="Center" Width="30" VerticalContentAlignment="Center" Margin="5 5 0 5"/>
                 
                 <TextBlock Text="Font:" Margin="15 5 0 5 " VerticalAlignment="Center"/>
-                <ComboBox x:Name="comboBoxFonts" ItemsSource="{Binding Source={StaticResource SortedFontsCollection}}" Width="150" Margin="5"/>
+                <ComboBox x:Name="comboBoxFonts" Width="150" Margin="5" SelectedItem="{Binding selectedFont}"/>
 
             </StackPanel>
         </Grid>

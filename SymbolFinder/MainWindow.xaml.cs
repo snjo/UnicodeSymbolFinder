@@ -44,12 +44,8 @@ public partial class MainWindow : Window
     bool SaveRequested = false;
 
     //font selector objects
-    public string selectedFont { get; set; } = "Comic Sans";
-
-    public static readonly DependencyProperty MyFontFamilyProperty =
-        DependencyProperty.Register("MyFontFamily",
-        typeof(FontFamily), typeof(MainWindow), new UIPropertyMetadata(null));
-
+    public FontFamily SelectedFont { get; set; }
+    ObservableCollection<FontFamily> FontList { get; set; } = [];
 
     // periodic timer
     System.Windows.Threading.DispatcherTimer saveTimer = new System.Windows.Threading.DispatcherTimer();
@@ -59,6 +55,8 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+
+        // only load the original unicode data file if no custom symbols file exists
         if (File.Exists(unicodeSymbolsFilePath))
         {
             LoadSymbolsFile();
@@ -71,11 +69,14 @@ public partial class MainWindow : Window
         this.DataContext = this;
         ResultBox.Items.Clear();
         ResultBox.ItemsSource = SearchResults;
-        ListviewCategories.ItemsSource = CategoryList;
+        
+
+        // timer for periodic saving of symbols file
         saveTimer.Tick += new EventHandler(SaveTimer_Tick);
         saveTimer.Interval = new TimeSpan(0, 0, 30);
         saveTimer.Start();
 
+        // unicode categories for the left panel
         CategoryList = [];
         foreach (var category in UnicodeCategories.Instance.Categories)
         {
@@ -84,15 +85,23 @@ public partial class MainWindow : Window
         ListviewCategories.ItemsSource = CategoryList;
 
         //create font list
+        ObservableCollection<FontFamily> tempFontList = [];
         foreach (FontFamily fontFamily in Fonts.SystemFontFamilies)
         {
+            tempFontList.Add(fontFamily);
             if (fontFamily.Source == ("Segoe UI Emoji") || fontFamily.Source == ("Segoe UI") || fontFamily.Source == "Arial")
             {
                 Debug.WriteLine($"Found font preference {fontFamily.Source}");
+                SelectedFont = fontFamily;
                 comboBoxFonts.SelectedItem = fontFamily;
                 // continue until end, luckily Segoe UI Emoji is last in the list, so it wins
             }
         }
+
+        // sort the font list
+        FontList = new ObservableCollection<FontFamily>(tempFontList.OrderBy(f => f.Source));
+
+        comboBoxFonts.ItemsSource = FontList;
 
         //do a search to fill the list on launch
         SearchResults = SearchSymbols(Symbols, TextboxSearch.Text, false, false);
@@ -588,7 +597,7 @@ public partial class MainWindow : Window
 
             // check for glyph (symbol) support in the font list
 
-            (bool supportedByCurrentFont, int supportCount, List<string> supportingFamilies) = CheckFamiliesSupportingChar(symbol.Symbol, symbol.CodeNumber, comboBoxFonts.SelectedItem as FontFamily);
+            (bool supportedByCurrentFont, int supportCount, List<string> supportingFamilies) = CheckFamiliesSupportingChar(symbol.Symbol, symbol.CodeNumber, SelectedFont);//comboBoxFonts.SelectedItem as FontFamily);
             //Debug.WriteLine($"Checked symbol {symbol.CodeNumber}, {symbol.CodePoint}, {symbol.Symbol}, {symbol.Name}");
             TextblockFontSupport.Text = $"Supported by selected font: {supportedByCurrentFont}";
             TextblockFontSupportCount.Text = $"Supported by {supportCount} installed fonts";
