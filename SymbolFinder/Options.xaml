@@ -1,0 +1,44 @@
+﻿<Window x:Class="SymbolFinder.Options"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SymbolFinder"
+        mc:Ignorable="d"
+        Title="Options"
+        SizeToContent="WidthAndHeight">
+    <Grid>
+        <StackPanel Orientation="Vertical">
+            <TextBlock Text="These settings change the starting behavior of the program." Margin="10 5" FontStyle="Italic"/>
+            <TextBlock Text="Font options" Margin="10 5" FontSize="15" FontWeight="Bold"/>
+            <CheckBox Content="Show font compatibility in details pane (slower)" Margin="20 5" IsChecked="{Binding OptionShowFontList}"/>
+            <StackPanel Orientation="Horizontal" Margin="20 5">
+                <TextBlock Text="Default symbol font"/>
+                <TextBox Name="TextBoxFontFamily" Text="{Binding OptionFontFamily}" BorderBrush="Black" Margin="10 0 0 0" Width="200" TextChanged="TextBoxFontFamily_TextChanged">
+                    <TextBox.Style>
+                        <Style TargetType="TextBox">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding ValidFont}" Value="True">
+                                    <Setter Property="Foreground" Value="Green" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding ValidFont}" Value="False">
+                                    <Setter Property="Foreground" Value="Red" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBox.Style>
+                </TextBox>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="20 5">
+                <TextBlock Text="Default list font size"/>
+                <TextBox Text="{Binding OptionFontSize}" BorderBrush="Black" Margin="10 0 0 0" Width="50"/>
+            </StackPanel>
+            <TextBlock Text="Search options" Margin="10" FontSize="15" FontWeight="Bold"/>
+            <CheckBox Content="Show hidden symbols" Margin="20 5" IsChecked="{Binding OptionShowHidden}"/>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="10">
+                <Button Name="ButtonOptionsCancel" Content="Cancel" Padding="10 5" Margin="10 0" Click="ButtonOptionsCancel_Click"/>
+                <Button Name="ButtonOptionsOK" Content="OK" Padding="20 5" Click="ButtonOptionsOK_Click"/>
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</Window>

@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using SymbolFinder.Properties;
+using System.Collections;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Diagnostics.SymbolStore;
@@ -44,7 +45,7 @@ public partial class MainWindow : Window
     bool SaveRequested = false;
 
     //font selector objects
-    public FontFamily SelectedFont { get; set; }
+    public FontFamily? SelectedFont { get; set; }
     ObservableCollection<FontFamily> FontList { get; set; } = [];
 
     // periodic timer
@@ -65,11 +66,11 @@ public partial class MainWindow : Window
         {
             LoadUnicodeFile(unicodeDataFilePath);
         }
-        
+
         this.DataContext = this;
         ResultBox.Items.Clear();
         ResultBox.ItemsSource = SearchResults;
-        
+
 
         // timer for periodic saving of symbols file
         saveTimer.Tick += new EventHandler(SaveTimer_Tick);
@@ -85,10 +86,52 @@ public partial class MainWindow : Window
         ListviewCategories.ItemsSource = CategoryList;
 
         //create font list
+
+        CreateFontList();
+        SelectStartingFont();
+
+        LoadSettingsValues();
+
+        //do a search to fill the list on launch
+        SearchResults = SearchSymbols(Symbols, TextboxSearch.Text, ShowHiddenSymbols, false);
+        ResultBox.ItemsSource = SearchResults;
+        Debug.WriteLine($"Start Results: {SearchResults.Count}");
+
+        
+    }
+
+    private void CreateFontList()
+    {
         ObservableCollection<FontFamily> tempFontList = [];
         foreach (FontFamily fontFamily in Fonts.SystemFontFamilies)
         {
             tempFontList.Add(fontFamily);
+        }
+        // sort the font list
+        FontList = new ObservableCollection<FontFamily>(tempFontList.OrderBy(f => f.Source));
+
+        comboBoxFonts.ItemsSource = FontList;
+    }
+
+    private void SelectStartingFont()
+    {
+
+        if (Settings.Default.startingFont.Length > 0)
+        {
+
+            FontFamily? font = GetFontFamily(Settings.Default.startingFont);
+            if (font != null)
+            {
+                SelectedFont = font;
+                comboBoxFonts.SelectedItem = font;
+                return;
+            }
+        }
+
+
+        Debug.WriteLine($"Font setting was blank, using defaults");
+        foreach (FontFamily fontFamily in FontList)
+        {
             if (fontFamily.Source == ("Segoe UI Emoji") || fontFamily.Source == ("Segoe UI") || fontFamily.Source == "Arial")
             {
                 Debug.WriteLine($"Found font preference {fontFamily.Source}");
@@ -97,16 +140,50 @@ public partial class MainWindow : Window
                 // continue until end, luckily Segoe UI Emoji is last in the list, so it wins
             }
         }
+        
+    }
 
-        // sort the font list
-        FontList = new ObservableCollection<FontFamily>(tempFontList.OrderBy(f => f.Source));
+    public void LoadSettingsValues()
+    {
+        ShowHiddenSymbols = Settings.Default.showHidden;
+        CheckboxShowHidden.IsChecked = ShowHiddenSymbols;
+        ResultFontSize.FontSize = Settings.Default.fontSize;
+        UpdateFontSizeLabel();
 
-        comboBoxFonts.ItemsSource = FontList;
+        FontFamily? font = GetFontFamily(Settings.Default.startingFont);
+        if (font != null)
+        {
+            SelectedFont = font;
+            
+            Debug.WriteLine($"Using starting font from settings {Settings.Default.startingFont} > {font.Source}");
+        }
+        else
+        {
+            Debug.WriteLine($"Error loading starting font from settings {Settings.Default.startingFont}, resetting");
+            if (SelectedFont != null)
+            {
+                Settings.Default.startingFont = SelectedFont.Source;
+            }
+            else
+            {
+                Settings.Default.startingFont = "";
+            }
+            Settings.Default.Save();
+        }
+        
+    }
 
-        //do a search to fill the list on launch
-        SearchResults = SearchSymbols(Symbols, TextboxSearch.Text, false, false);
-        ResultBox.ItemsSource = SearchResults;
-        Debug.WriteLine($"Start Results: {SearchResults.Count}");
+    public FontFamily? GetFontFamily(string fontname)
+    {
+        foreach (FontFamily fontFamily in FontList)
+        {
+            if (fontFamily.Source == fontname)
+            {
+                Debug.WriteLine($"Found matching font {fontname} > {fontFamily.Source}");
+                return fontFamily;
+            }
+        }
+        return null;
     }
 
     private void SaveTimer_Tick(object? sender, EventArgs e)
@@ -595,23 +672,38 @@ public partial class MainWindow : Window
             TextblockUnicode1Name.Text = "Unicode 1 name: " + symbol.Unicode_1_Name;
             TextboxPersonalComment.Text = symbol.PersonalComment;
 
-            // check for glyph (symbol) support in the font list
+            ShowFontCompatibility(symbol);
+        }
+    }
 
+    private void ShowFontCompatibility(UnicodeSymbol symbol)
+    {
+        // check for glyph (symbol) support in the font list
+        if (Settings.Default.showFontCompatibility)
+        {
             (bool supportedByCurrentFont, int supportCount, List<string> supportingFamilies) = CheckFamiliesSupportingChar(symbol.Symbol, symbol.CodeNumber, SelectedFont);//comboBoxFonts.SelectedItem as FontFamily);
-            //Debug.WriteLine($"Checked symbol {symbol.CodeNumber}, {symbol.CodePoint}, {symbol.Symbol}, {symbol.Name}");
             TextblockFontSupport.Text = $"Supported by selected font: {supportedByCurrentFont}";
-            TextblockFontSupportCount.Text = $"Supported by {supportCount} installed fonts";
-            for (int i = 0; i < supportingFamilies.Count; i++)
-            {
-                if (i > 10)
-                {
-                    TextblockFontSupportCount.Text += $"\n   ... and more";
-                    break;
-                }
-                TextblockFontSupportCount.Text += $"\n   {supportingFamilies[i]}";
-            }
+            UpdateSupportedFontListText(supportCount, supportingFamilies);
+        }
+        else
+        {
+            TextblockFontSupport.Text = "Font compatibility not shown.\nEnable in Options";
+            TextblockFontSupportCount.Text = "";
+        }
+    }
 
-        }    
+    private void UpdateSupportedFontListText(int supportCount, List<string> supportingFamilies)
+    {
+        TextblockFontSupportCount.Text = $"Supported by {supportCount} installed fonts";
+        for (int i = 0; i < supportingFamilies.Count; i++)
+        {
+            if (i > 10)
+            {
+                TextblockFontSupportCount.Text += $"\n   ... and more";
+                break;
+            }
+            TextblockFontSupportCount.Text += $"\n   {supportingFamilies[i]}";
+        }
     }
 
     private static (bool, int, List<string>) CheckFamiliesSupportingChar(string symbolString, int codeNumber, FontFamily? currentFont)
@@ -771,11 +863,16 @@ public partial class MainWindow : Window
         SaveSymolsFile();
     }
 
+    private void UpdateFontSizeLabel()
+    {
+        TextblockFontSize.Text = "Font size: " + ResultFontSize.FontSize.ToString();
+    }
+
     private void ButtonFontPlus_Click(object sender, RoutedEventArgs e)
     {
         //Debug.WriteLine($"Setting font size {ResultFontSize.FontSize}");
         ResultFontSize.FontSize += 5;
-        TextblockFontSize.Text = "Font size: " + ResultFontSize.FontSize.ToString();
+        UpdateFontSizeLabel();
         ResultBox.Items.Refresh();
     }
 
@@ -787,7 +884,7 @@ public partial class MainWindow : Window
         {
             ResultFontSize.FontSize = 10;
         }
-        TextblockFontSize.Text = "Font size: " + ResultFontSize.FontSize.ToString();
+        UpdateFontSizeLabel();
         ResultBox.Items.Refresh();
     }
 
@@ -835,5 +932,11 @@ public partial class MainWindow : Window
     private void MenuSourceCode_Click(object sender, RoutedEventArgs e)
     {
         OpenLink("https://github.com/snjo/UnicodeSymbolFinder");
+    }
+
+    private void MenuItem_Click(object sender, RoutedEventArgs e)
+    {
+        Options options = new Options(this);
+        options.ShowDialog();
     }
 }
