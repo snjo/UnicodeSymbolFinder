@@ -24,10 +24,7 @@ namespace SymbolFinder
             set
             { 
                 _enabled = value;
-                if (PropertyChanged != null)
-                {
-                    PropertyChanged(this, new PropertyChangedEventArgs("Enabled"));
-                }
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Enabled)));
             }
         }
     }
@@ -41,9 +38,9 @@ namespace SymbolFinder
 
         public static string GetCategoryName(string shortName)
         {
-            if (Instance.Categories.ContainsKey(shortName))
+            if (Instance.Categories.TryGetValue(shortName, out UnicodeCategory? value))
             {
-                return Instance.Categories[shortName].LongName;
+                return value.LongName;
             }
             else
             {
@@ -53,9 +50,9 @@ namespace SymbolFinder
 
         public static UnicodeCategory? GetCategory(string shortName)
         {
-            if (Instance.Categories.ContainsKey(shortName))
+            if (Instance.Categories.TryGetValue(shortName, out UnicodeCategory? value))
             {
-                return Instance.Categories[shortName];
+                return value;
             }
             else
             {

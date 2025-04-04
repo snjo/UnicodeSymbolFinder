@@ -35,10 +35,20 @@
             </StackPanel>
             <TextBlock Text="Search options" Margin="10" FontSize="15" FontWeight="Bold"/>
             <CheckBox Content="Show hidden symbols" Margin="20 5" IsChecked="{Binding OptionShowHidden}"/>
+            
+            <TextBlock Text="Output options" Margin="10" FontSize="15" FontWeight="Bold"/>
+            <StackPanel Orientation="Horizontal" Margin="20 5">
+                <TextBlock Text="Unicode code point prefix"/>
+                <TextBox Text="{Binding OptionCodePointPrefix}" BorderBrush="Black" Margin="10 0 0 0" Width="50"/>
+            </StackPanel>
+            
+            
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="10">
                 <Button Name="ButtonOptionsCancel" Content="Cancel" Padding="10 5" Margin="10 0" Click="ButtonOptionsCancel_Click"/>
                 <Button Name="ButtonOptionsOK" Content="OK" Padding="20 5" Click="ButtonOptionsOK_Click"/>
             </StackPanel>
+            
+            
         </StackPanel>
     </Grid>
 </Window>

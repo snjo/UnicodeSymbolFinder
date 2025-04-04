@@ -19,6 +19,7 @@ namespace SymbolFinder
         MainWindow parent;
         public bool OptionShowHidden { get; set; }
         public bool OptionShowFontList { get; set; }
+        public string OptionCodePointPrefix { get; set; }
         private string _optionFontFamily = "";
         public string OptionFontFamily
         {
@@ -28,7 +29,7 @@ namespace SymbolFinder
             }
             set
             {
-                ValidFont = parent.GetFontFamily(value) != null;
+                ValidFont = parent.FontExists(value);
                 UpdateFontTextBoxStyle();
                 _optionFontFamily = value;
             }
@@ -59,6 +60,7 @@ namespace SymbolFinder
             OptionFontSize = Settings.Default.fontSize.ToString();
             OptionShowFontList = Settings.Default.showFontCompatibility;
             OptionShowHidden = Settings.Default.showHidden;
+            OptionCodePointPrefix = Settings.Default.CodePointPrefix;
         }
 
         private void SaveSettings()
@@ -73,6 +75,7 @@ namespace SymbolFinder
             }
             Settings.Default.showFontCompatibility = OptionShowFontList;
             Settings.Default.showHidden = OptionShowHidden;
+            Settings.Default.CodePointPrefix = OptionCodePointPrefix;
             Settings.Default.Save();
         }
 
@@ -89,7 +92,7 @@ namespace SymbolFinder
 
         private void TextBoxFontFamily_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
         {
-            ValidFont = parent.GetFontFamily(TextBoxFontFamily.Text) != null;
+            ValidFont = parent.FontExists(TextBoxFontFamily.Text);
             UpdateFontTextBoxStyle();
         }
     }

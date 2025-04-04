@@ -70,5 +70,17 @@ namespace SymbolFinder.Properties {
                 this["startingFont"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0x")]
+        public string CodePointPrefix {
+            get {
+                return ((string)(this["CodePointPrefix"]));
+            }
+            set {
+                this["CodePointPrefix"] = value;
+            }
+        }
     }
 }

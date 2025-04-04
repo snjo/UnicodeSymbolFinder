@@ -181,8 +181,8 @@
                 <Button Content="Un-Favorite (R)" Margin="5 5 0 5" Click="ButtonUnFavoriteSelected_Click" Padding="10 0"/>
                 <Button Content="Hide (H)" Margin="15 5 0 5" Click="ButtonHideSelected_Click" Padding="10 0"/>
                 <Button Content="Un-Hide (U)" Margin="5 5 0 5" Click="ButtonUnHideSelected_Click" Padding="10 0"/>
-                <Button Content="Copy selected as list (C)" Margin="15 5 0 5" Click="ButtonCopyAllSelectedList_Click" Padding="10 0"/>
-                <Button Content="Copy selected as symbols (L)" Margin="5 5 0 5" Click="ButtonCopyAllSelectedSymbols_Click" Padding="10 0"/>
+                <Button Content="Copy selected as list (L)" Margin="15 5 0 5" Click="ButtonCopyAllSelectedList_Click" Padding="10 0"/>
+                <Button Content="Copy selected as symbols (C)" Margin="5 5 0 5" Click="ButtonCopyAllSelectedSymbols_Click" Padding="10 0"/>
                 
                 <TextBlock Name="TextblockFontSize" Text="Font size: 15" VerticalAlignment="Center" Margin="10 5 2 5"/>
                 <Button Name="ButtonFontPlus" Content="+" Click="ButtonFontPlus_Click" VerticalAlignment="Center" Width="30" VerticalContentAlignment="Center" Margin="5 5 0 5"/>

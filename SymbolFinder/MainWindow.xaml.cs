@@ -26,8 +26,8 @@ namespace SymbolFinder;
 public partial class MainWindow : Window
 {
 
-    List<UnicodeSymbol> Symbols = [];
-    public UnicodeCategories unicodeCategories = new UnicodeCategories();
+    readonly List<UnicodeSymbol> Symbols = [];
+    public UnicodeCategories unicodeCategories = new ();
 
     public ObservableCollection<UnicodeSymbol> SearchResults = [];
     public ObservableCollection<UnicodeCategory> CategoryList = [];
@@ -40,7 +40,6 @@ public partial class MainWindow : Window
     public string favoritesFilePath = @"data\favorites.txt";
     public string unicodeDataFilePath = @"data\UnicodeData.txt"; // source file from the Unicode.org
     public string unicodeSymbolsFilePath = @"data\symbols.txt"; // the generated personal library file
-    string HexPrefix = "0x";
 
     bool SaveRequested = false;
 
@@ -48,7 +47,7 @@ public partial class MainWindow : Window
     public FontFamily? SelectedFont { get; set; }
     ObservableCollection<FontFamily> FontList { get; set; } = [];
 
-    // periodic timer
+    // periodic timer for saving the symbols file if changes are made
     System.Windows.Threading.DispatcherTimer saveTimer = new System.Windows.Threading.DispatcherTimer();
 
     
@@ -148,6 +147,7 @@ public partial class MainWindow : Window
         ShowHiddenSymbols = Settings.Default.showHidden;
         CheckboxShowHidden.IsChecked = ShowHiddenSymbols;
         ResultFontSize.FontSize = Settings.Default.fontSize;
+        //CodePointPrefix = Settings.Default.CodePointPrefix;
         UpdateFontSizeLabel();
 
         FontFamily? font = GetFontFamily(Settings.Default.startingFont);
@@ -171,6 +171,21 @@ public partial class MainWindow : Window
             Settings.Default.Save();
         }
         
+    }
+
+    HashSet<string> FontSet = new HashSet<string>();
+    public bool FontExists(string fontName)
+    {
+        if (FontSet.Count == 0)
+        {
+            foreach (FontFamily font in FontList)
+            {
+                FontSet.Add(font.Source);
+            }
+        }
+        bool found = FontSet.Contains(fontName);
+        //Debug.WriteLine("FontSet {0} {1}",found?"contains":"does not contain", fontName);
+        return found;
     }
 
     public FontFamily? GetFontFamily(string fontname)
@@ -479,7 +494,7 @@ public partial class MainWindow : Window
             {
                 if (item is UnicodeSymbol symbol)
                 {
-                    sb.Append(HexPrefix + symbol.CodePoint + "\t");
+                    sb.Append(Settings.Default.CodePointPrefix + symbol.CodePoint + "\t");
                     sb.Append(symbol.Symbol + "\t");
                     sb.Append(symbol.Name);
                     if (symbol.PersonalComment.Length > 0)
@@ -667,7 +682,7 @@ public partial class MainWindow : Window
             //Debug.WriteLine($"Showing info for symbol {symbol.Name}");
             TextboxSymbolName.Text = symbol.Name;
             TextboxSymbolGraphic.Text = symbol.Symbol;
-            TextboxSymbolCodepoint.Text = HexPrefix + symbol.CodePoint;
+            TextboxSymbolCodepoint.Text = Settings.Default.CodePointPrefix + symbol.CodePoint;
             TextblockSymbolCategory.Text = "Category: " + UnicodeCategories.GetCategoryName(symbol.Category);
             TextblockUnicode1Name.Text = "Unicode 1 name: " + symbol.Unicode_1_Name;
             TextboxPersonalComment.Text = symbol.PersonalComment;
