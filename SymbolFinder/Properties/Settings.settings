@@ -12,7 +12,7 @@
       <Value Profile="(Default)">15</Value>
     </Setting>
     <Setting Name="startingFont" Type="System.String" Scope="User">
-      <Value Profile="(Default)">Segoe UI Symbols</Value>
+      <Value Profile="(Default)">Segoe UI Emoji</Value>
     </Setting>
   </Settings>
 </SettingsFile>
