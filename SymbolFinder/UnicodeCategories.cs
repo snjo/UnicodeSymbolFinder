@@ -34,7 +34,7 @@ namespace SymbolFinder
         
 
         public Dictionary<string, UnicodeCategory> Categories = [];
-        public static UnicodeCategories Instance = new();
+        public static readonly UnicodeCategories Instance = new();
 
         public static string GetCategoryName(string shortName)
         {
@@ -60,7 +60,7 @@ namespace SymbolFinder
             }
         }
 
-        public UnicodeCategory Lu = new UnicodeCategory("Lu", "Uppercase Letter", "an uppercase letter");
+        public UnicodeCategory Lu = new ("Lu", "Uppercase Letter", "an uppercase letter");
 
         public UnicodeCategories()
         {

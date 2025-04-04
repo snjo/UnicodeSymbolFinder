@@ -48,7 +48,7 @@ public partial class MainWindow : Window
     ObservableCollection<FontFamily> FontList { get; set; } = [];
 
     // periodic timer for saving the symbols file if changes are made
-    System.Windows.Threading.DispatcherTimer saveTimer = new System.Windows.Threading.DispatcherTimer();
+    private readonly System.Windows.Threading.DispatcherTimer saveTimer = new ();
 
     
 
@@ -173,7 +173,7 @@ public partial class MainWindow : Window
         
     }
 
-    HashSet<string> FontSet = new HashSet<string>();
+    private readonly HashSet<string> FontSet = [];
     public bool FontExists(string fontName)
     {
         if (FontSet.Count == 0)
@@ -384,7 +384,7 @@ public partial class MainWindow : Window
 
     private HashSet<string> CreateSymbolHashes()
     {
-        HashSet<string> values = new();
+        HashSet<string> values = [];
         foreach (UnicodeSymbol symbol in Symbols)
         {
             values.Add(symbol.CodePoint);
@@ -605,10 +605,7 @@ public partial class MainWindow : Window
 
     private void HideSelectedSymbols()
     {
-        if (HiddenSymbols == null)
-        {
-            HiddenSymbols = [];
-        }
+        HiddenSymbols ??= []; // if null, create it
         foreach (object obj in ResultBox.SelectedItems)
         {
             if (obj is UnicodeSymbol symbol)
@@ -626,10 +623,7 @@ public partial class MainWindow : Window
 
     private void UnHideSelectedSymbols()
     {
-        if (HiddenSymbols == null)
-        {
-            HiddenSymbols = [];
-        }
+        HiddenSymbols ??= []; // if null, create it
         foreach (object obj in ResultBox.SelectedItems)
         {
             if (obj is UnicodeSymbol symbol)
@@ -696,7 +690,7 @@ public partial class MainWindow : Window
         // check for glyph (symbol) support in the font list
         if (Settings.Default.showFontCompatibility)
         {
-            (bool supportedByCurrentFont, int supportCount, List<string> supportingFamilies) = CheckFamiliesSupportingChar(symbol.Symbol, symbol.CodeNumber, SelectedFont);//comboBoxFonts.SelectedItem as FontFamily);
+            (bool supportedByCurrentFont, int supportCount, List<string> supportingFamilies) = CheckFamiliesSupportingChar(symbol.CodeNumber, SelectedFont);//comboBoxFonts.SelectedItem as FontFamily);
             TextblockFontSupport.Text = $"Supported by selected font: {supportedByCurrentFont}";
             UpdateSupportedFontListText(supportCount, supportingFamilies);
         }
@@ -721,20 +715,15 @@ public partial class MainWindow : Window
         }
     }
 
-    private static (bool, int, List<string>) CheckFamiliesSupportingChar(string symbolString, int codeNumber, FontFamily? currentFont)
+    private static (bool, int, List<string>) CheckFamiliesSupportingChar(int codeNumber, FontFamily? currentFont)
     {
         // https://stackoverflow.com/questions/5604855/how-to-determine-which-fonts-contain-a-specific-character
-
-        //Debug.WriteLine($"Checking availability of character '{symbolString}'");
 
         int fontCount = 0;
         int compatibleFontCount = 0;
         //ICollection<FontFamily> fontFamilies = Fonts.GetFontFamilies(@"C:\Windows\Fonts\");
         var fontFamilies = Fonts.SystemFontFamilies;
         //Debug.WriteLine($"Found {fontFamilies.Count} fonts");
-        ushort glyphIndex;
-        GlyphTypeface glyph;
-        string familyName;
         List<string> supportingFamilies = [];
 
         bool currentFontSupportsGlyph = false;
@@ -746,10 +735,10 @@ public partial class MainWindow : Window
             var typefaces = family.GetTypefaces();
             foreach (Typeface typeface in typefaces)
             {
-                typeface.TryGetGlyphTypeface(out glyph);
-                if (glyph != null && glyph.CharacterToGlyphMap.TryGetValue(codeNumber, out glyphIndex))
+                typeface.TryGetGlyphTypeface(out GlyphTypeface glyph);
+                if (glyph != null && glyph.CharacterToGlyphMap.TryGetValue(codeNumber, out ushort glyphIndex))
                 {
-                    family.FamilyNames.TryGetValue(XmlLanguage.GetLanguage("en-us"), out familyName);
+                    family.FamilyNames.TryGetValue(XmlLanguage.GetLanguage("en-us"), out string familyName);
                     //Debug.WriteLine(familyName + " supports ");
                     supportingFamilies.Add(familyName);
 
@@ -847,7 +836,7 @@ public partial class MainWindow : Window
             Debug.WriteLine($"Saving symbols file");
             SaveRequested = false;
             string fullPath = System.IO.Path.GetFullPath(unicodeSymbolsFilePath);
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new ();
             foreach (UnicodeSymbol symbol in Symbols)
             {
                 // ( codepoint,  name,  category,  unicode_1_name,  personalcomment, bool favorite, bool hidden) 
@@ -951,7 +940,7 @@ public partial class MainWindow : Window
 
     private void MenuItem_Click(object sender, RoutedEventArgs e)
     {
-        Options options = new Options(this);
+        Options options = new (this);
         options.ShowDialog();
     }
 }

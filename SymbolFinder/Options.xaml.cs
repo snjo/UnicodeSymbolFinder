@@ -16,7 +16,7 @@ namespace SymbolFinder
     /// </summary>
     public partial class Options : Window
     {
-        MainWindow parent;
+        private readonly MainWindow parent;
         public bool OptionShowHidden { get; set; }
         public bool OptionShowFontList { get; set; }
         public string OptionCodePointPrefix { get; set; }
