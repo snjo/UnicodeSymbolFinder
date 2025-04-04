@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel;
 
 namespace SymbolFinder
 {
@@ -14,7 +7,7 @@ namespace SymbolFinder
         public string Name { get; set; } // the display name of the character
         public string Symbol { get; set; } // the actual unicode symbol character
         public string CodePoint { get; set; } // unicode hex code
-        public int CodeNumber {  get; set; } // hex code converted to int
+        public int CodeNumber { get; set; } // hex code converted to int
         public string Category { get; set; } // unicode symbol Category
         public string ISOcomment { get; set; }
         public string Unicode_1_Name { get; set; }
@@ -29,7 +22,7 @@ namespace SymbolFinder
             }
             set
             {
-                _personalComment = value.Replace(';',','); // prevent semicolons, used as separator in the symbols file
+                _personalComment = value.Replace(';', ','); // prevent semicolons, used as separator in the symbols file
                 if (PropertyChanged != null)
                 {
                     PropertyChanged(this, new PropertyChangedEventArgs("PersonalComment"));
@@ -38,9 +31,9 @@ namespace SymbolFinder
         }
 
         public double FontSize
-        { 
+        {
             get
-            { 
+            {
                 return Parent.ResultFontSize.FontSize;
             }
             set
@@ -57,7 +50,8 @@ namespace SymbolFinder
         public event PropertyChangedEventHandler? PropertyChanged;
 
         private bool _hidden = false;
-        public bool Hidden {
+        public bool Hidden
+        {
             get
             {
                 return _hidden;

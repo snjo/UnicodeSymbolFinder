@@ -1,15 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel;
 
 namespace SymbolFinder
 {
-    public class UnicodeCategory (string shortName, string longName, string description, bool enabled=true) : INotifyPropertyChanged
+    public class UnicodeCategory(string shortName, string longName, string description, bool enabled = true) : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler? PropertyChanged;
         public string ShortName { get; } = shortName;
@@ -17,12 +10,12 @@ namespace SymbolFinder
         public string LongName { get; } = longName;
 
         public string Description { get; } = description;
-        private bool _enabled { get; set;  } = enabled;
+        private bool _enabled { get; set; } = enabled;
         public bool Enabled
         {
-            get { return _enabled;  }
+            get { return _enabled; }
             set
-            { 
+            {
                 _enabled = value;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Enabled)));
             }
@@ -31,7 +24,7 @@ namespace SymbolFinder
 
     public class UnicodeCategories
     {
-        
+
 
         public Dictionary<string, UnicodeCategory> Categories = [];
         public static readonly UnicodeCategories Instance = new();
@@ -60,7 +53,7 @@ namespace SymbolFinder
             }
         }
 
-        public UnicodeCategory Lu = new ("Lu", "Uppercase Letter", "an uppercase letter");
+        public UnicodeCategory Lu = new("Lu", "Uppercase Letter", "an uppercase letter");
 
         public UnicodeCategories()
         {
@@ -102,7 +95,7 @@ namespace SymbolFinder
             Categories.Add("Zs", new UnicodeCategory("Zs", "Space Separator", "a space character (of various non-zero widths)"));
             Categories.Add("Zl", new UnicodeCategory("Zl", "Line Separator", "U+2028 LINE SEPARATOR only"));
             Categories.Add("Zp", new UnicodeCategory("Zp", "Paragraph Separator", "U+2029 PARAGRAPH SEPARATOR only"));
-                                                     
+
             //Other                                  
             Categories.Add("Cc", new UnicodeCategory("Cc", "Control", "a C0 or C1 control code"));
             Categories.Add("Cf", new UnicodeCategory("Cf", "Format", "a format control character"));

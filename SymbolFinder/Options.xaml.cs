@@ -1,10 +1,4 @@
 ﻿using SymbolFinder.Properties;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 
@@ -35,7 +29,7 @@ namespace SymbolFinder
             }
         }
         public string OptionFontSize { get; set; }
-        
+
         public bool ValidFont { get; set; }
 
 

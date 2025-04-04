@@ -1,22 +1,13 @@
 ﻿using SymbolFinder.Properties;
-using System.Collections;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.Diagnostics.SymbolStore;
 using System.IO;
-using System.Numerics;
 using System.Text;
-using System.Text.Json;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Markup;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace SymbolFinder;
 
@@ -27,7 +18,7 @@ public partial class MainWindow : Window
 {
 
     readonly List<UnicodeSymbol> Symbols = [];
-    public UnicodeCategories unicodeCategories = new ();
+    public UnicodeCategories unicodeCategories = new();
 
     public ObservableCollection<UnicodeSymbol> SearchResults = [];
     public ObservableCollection<UnicodeCategory> CategoryList = [];
@@ -48,9 +39,9 @@ public partial class MainWindow : Window
     ObservableCollection<FontFamily> FontList { get; set; } = [];
 
     // periodic timer for saving the symbols file if changes are made
-    private readonly System.Windows.Threading.DispatcherTimer saveTimer = new ();
+    private readonly System.Windows.Threading.DispatcherTimer saveTimer = new();
 
-    
+
 
     public MainWindow()
     {
@@ -96,7 +87,7 @@ public partial class MainWindow : Window
         ResultBox.ItemsSource = SearchResults;
         Debug.WriteLine($"Start Results: {SearchResults.Count}");
 
-        
+
     }
 
     private void CreateFontList()
@@ -139,7 +130,7 @@ public partial class MainWindow : Window
                 // continue until end, luckily Segoe UI Emoji is last in the list, so it wins
             }
         }
-        
+
     }
 
     public void LoadSettingsValues()
@@ -154,7 +145,7 @@ public partial class MainWindow : Window
         if (font != null)
         {
             SelectedFont = font;
-            
+
             Debug.WriteLine($"Using starting font from settings {Settings.Default.startingFont} > {font.Source}");
         }
         else
@@ -170,7 +161,7 @@ public partial class MainWindow : Window
             }
             Settings.Default.Save();
         }
-        
+
     }
 
     private readonly HashSet<string> FontSet = [];
@@ -214,7 +205,7 @@ public partial class MainWindow : Window
     private void SearchSymbolsWithConditions(bool showHidden, bool showFavoritesOnly)
     {
         string searchTerm = TextboxSearch.Text;
-        
+
         List<UnicodeSymbol> results = [];
 
         // escape clauses to default to regular search
@@ -257,7 +248,7 @@ public partial class MainWindow : Window
                     currentTerm = string.Empty;
                 }
             }
-            
+
             if (c == '+')
             {
                 inclusive = true;
@@ -290,7 +281,7 @@ public partial class MainWindow : Window
         {
             includeTerms.Add("");
         }
-        
+
         foreach (UnicodeSymbol symbol in Symbols)
         {
             bool includeSymbol = true;
@@ -373,7 +364,7 @@ public partial class MainWindow : Window
         if (showHidden)
         {
             TextblockSearchCount.Text = $"Found {foundAmount} (including {foundHiddenAmount} hidden symbols)";
-            
+
         }
         else
         {
@@ -420,7 +411,7 @@ public partial class MainWindow : Window
                 Debug.WriteLine($"Too few values on line {counterNew}");
                 continue;
             }
-            
+
             if (symbolHashSet.Contains(values[0]) == false)
             {
                 Symbols.Add(new UnicodeSymbol(this, values));
@@ -614,7 +605,7 @@ public partial class MainWindow : Window
                 if (HiddenSymbols.ContainsKey(symbol.CodePoint) == false)
                 {
                     HiddenSymbols.Add(symbol.CodePoint, symbol.Name);
-                    
+
                 }
                 SaveRequested = true;
             }
@@ -631,7 +622,7 @@ public partial class MainWindow : Window
                 symbol.Hidden = false;
                 if (HiddenSymbols.ContainsKey(symbol.CodePoint) == true)
                 {
-                    HiddenSymbols.Remove(symbol.CodePoint);   
+                    HiddenSymbols.Remove(symbol.CodePoint);
                 }
                 SaveRequested = true;
             }
@@ -730,7 +721,7 @@ public partial class MainWindow : Window
 
         foreach (FontFamily family in fontFamilies)
         {
-            
+
             //Debug.WriteLine($"    Font {fontCount}: {family.Source}");
             var typefaces = family.GetTypefaces();
             foreach (Typeface typeface in typefaces)
@@ -756,7 +747,7 @@ public partial class MainWindow : Window
             }
             fontCount++;
         }
-        
+
         //Debug.WriteLine($"Total {compatibleFontCount} fonts support {symbolString} {codeNumber}");
         return (currentFontSupportsGlyph, compatibleFontCount, supportingFamilies);
     }
@@ -781,7 +772,7 @@ public partial class MainWindow : Window
         UnFavoriteSelectedSymbols();
     }
 
-    
+
     private void TextboxPersonalComment_TextChanged(object sender, TextChangedEventArgs e)
     {
         SaveRequested = true;
@@ -789,8 +780,8 @@ public partial class MainWindow : Window
         {
             currentSymbol.PersonalComment = TextboxPersonalComment.Text;
         }
-        if (ResultBox.SelectedItems.Count > 1) 
-        { 
+        if (ResultBox.SelectedItems.Count > 1)
+        {
             foreach (var item in ResultBox.SelectedItems)
             {
                 if (item is UnicodeSymbol symbol)
@@ -813,7 +804,7 @@ public partial class MainWindow : Window
             int counter = 0;
             foreach (string line in lines)
             {
-                
+
                 string[] entries = line.Split(';');
                 if (entries.Length >= 7)
                 {
@@ -836,7 +827,7 @@ public partial class MainWindow : Window
             Debug.WriteLine($"Saving symbols file");
             SaveRequested = false;
             string fullPath = System.IO.Path.GetFullPath(unicodeSymbolsFilePath);
-            StringBuilder sb = new ();
+            StringBuilder sb = new();
             foreach (UnicodeSymbol symbol in Symbols)
             {
                 // ( codepoint,  name,  category,  unicode_1_name,  personalcomment, bool favorite, bool hidden) 
@@ -940,7 +931,7 @@ public partial class MainWindow : Window
 
     private void MenuItem_Click(object sender, RoutedEventArgs e)
     {
-        Options options = new (this);
+        Options options = new(this);
         options.ShowDialog();
     }
 }
