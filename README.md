@@ -34,6 +34,14 @@ For example, searching for the following will show all smiling faces except cats
     0x1F92D	🤭	SMILING FACE WITH SMILING EYES AND HAND COVERING MOUTH
     0x1F970	🥰	SMILING FACE WITH SMILING EYES AND THREE HEARTS
 
+    zz-🍕
+
+    0x1F9E9	🧩	JIGSAW PUZZLE PIECE
+    0x1D190	𝆐	MUSICAL SYMBOL MEZZO
+    0x1F4A4	💤	SLEEPING SYMBOL - zzz
+    0x1F4AB	💫	DIZZY SYMBOL
+    0x1F635	😵	DIZZY FACE
+
 ## Categories
 
 The left panel lists all Unicode symbol categories. To narrow your search, enable or disable unwanted search categories.
