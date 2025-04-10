@@ -165,7 +165,11 @@ namespace SymbolFinder
         public bool Contains(string searchTerm, bool showHidden)
         {
             if (Hidden && !showHidden) return false;
-            return (Name.Contains(searchTerm, StringComparison.InvariantCultureIgnoreCase) || PersonalComment.Contains(searchTerm, StringComparison.InvariantCultureIgnoreCase) || CodePoint.Contains(searchTerm, StringComparison.InvariantCultureIgnoreCase));
+            bool symbolGlyphMatch = (searchTerm == Symbol);
+            bool nameMatch = Name.Contains(searchTerm, StringComparison.InvariantCultureIgnoreCase);
+            bool commentMatch = PersonalComment.Contains(searchTerm, StringComparison.InvariantCultureIgnoreCase);
+            bool codePointMatch = CodePoint.Contains(searchTerm, StringComparison.InvariantCultureIgnoreCase);
+            return (symbolGlyphMatch || nameMatch || commentMatch || codePointMatch);
         }
     }
 }
