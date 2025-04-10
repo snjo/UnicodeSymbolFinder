@@ -4,7 +4,19 @@ namespace SymbolFinder
 {
     public class UnicodeSymbol : INotifyPropertyChanged
     {
-        public string Name { get; set; } // the display name of the character
+        private string _name;
+        public string Name { get
+            {
+                if (_name == "<control>" && Unicode_1_Name.Length > 0) return Unicode_1_Name;
+                return _name;
+            }
+
+            set
+            {
+                _name = value;
+            }
+
+        } // the display name of the character
         public string Symbol { get; set; } // the actual unicode symbol character
         public string CodePoint { get; set; } // unicode hex code
         public int CodeNumber { get; set; } // hex code converted to int
