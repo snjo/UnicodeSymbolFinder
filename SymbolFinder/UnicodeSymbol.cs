@@ -4,7 +4,7 @@ namespace SymbolFinder
 {
     public class UnicodeSymbol : INotifyPropertyChanged
     {
-        private string _name;
+        private string _name = "";
         public string Name { get
             {
                 if (_name == "<control>" && Unicode_1_Name.Length > 0) return Unicode_1_Name;
