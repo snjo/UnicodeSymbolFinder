@@ -8,6 +8,8 @@
     <UseWPF>true</UseWPF>
     <ApplicationIcon>img\thinkingface.ico</ApplicationIcon>
     <AssemblyName>$(MSBuildProjectName)</AssemblyName>
+	<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <Deterministic>false</Deterministic>
   </PropertyGroup>
 
   <ItemGroup>

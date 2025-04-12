@@ -2,12 +2,15 @@
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Markup;
 using System.Windows.Media;
+
+[assembly: AssemblyVersion("1.2.*")]
 
 namespace SymbolFinder;
 
