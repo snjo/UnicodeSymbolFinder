@@ -2,11 +2,18 @@
 
 Search for unicode symbols by name, code or custom comment, and copy them to your clipboard.
 
+## Installation
+
+Download the lates file from Releases and unzip to any folder where you have write access. If you place the program in an admin-protected folder, you won't be able to save comments or favorites.
+
+If you don't have the .Net 8 runtime installed, you will be directed to download it from Microsoft.
+
 ## Search
 
-Searching is done on the Unicode symbol's Code Point, Name or personal Comment.
+Searching is done on the Unicode symbol's Code Point, Name, glyph or personal Comment.
 - Code Point: the hex code of the symbol, search *without* 0x or \u in front, just use the hex number (e.g. 1F604 not 0x1F604)
 - Name: The name set by Unicode for the symbol
+- Glyph: The actual symbol character
 - Comment: an editable value
 
 Searching with no input shows all symbols in the list.
