@@ -2,6 +2,12 @@
 
 Search for unicode symbols by name, code or custom comment, and copy them to your clipboard.
 
+## Installation
+
+Download the lates file from Releases and unzip to any folder where you have write access. If you place the program in an admin-protected folder, you won't be able to save comments or favorites.
+
+If you don't have the .Net 8 runtime installed, you will be directed to download it from Microsoft.
+
 ## Search
 
 Searching is done on the Unicode symbol's Code Point, Name, glyph or personal Comment.
