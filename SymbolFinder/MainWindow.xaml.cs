@@ -386,7 +386,7 @@ public partial class MainWindow : Window
         return values;
     }
 
-    private void LoadUnicodeFile(string filename)
+    private (bool,string) LoadUnicodeFile(string filename)
     {
         // load the raw UnicodeData.txt file from unicode.org, and fill the symbol dictionary
         // only used if there's no symbols.txt already generated
@@ -394,9 +394,19 @@ public partial class MainWindow : Window
         if (File.Exists(filename) == false)
         {
             Debug.WriteLine($"No such unicode text file: {filename}");
+            return (false, $"File not found: {filename}");
         }
 
-        string[] unicodeLines = File.ReadAllLines(filename);
+        string[] unicodeLines;
+        try
+        {
+            unicodeLines = File.ReadAllLines(filename);
+
+        }
+        catch (Exception ex)
+        {
+            return (false, $"Error reading file {filename}.\n{ex.Message}");
+        }
 
         DateTime before = DateTime.Now;
 
@@ -431,6 +441,7 @@ public partial class MainWindow : Window
 
         TimeSpan processingTime = DateTime.Now - before;
         Debug.WriteLine($"Read all line in {(int)processingTime.TotalSeconds}s {processingTime.Milliseconds}");
+        return (true, $"Added {counterNew} symbols, skipped {counterDuplicate} duplicate entries");
     }
 
     private void ResultBox_MouseDoubleClick(object sender, MouseButtonEventArgs e)
@@ -909,7 +920,15 @@ public partial class MainWindow : Window
 
     private void MenuUpdateUnicodeData_Click(object sender, RoutedEventArgs e)
     {
-        LoadUnicodeFile(unicodeDataFilePath);
+        (bool updated, string message) = LoadUnicodeFile(Path.GetFullPath(unicodeDataFilePath));
+        if (updated)
+        {
+            MessageBox.Show($"Unicode data updated from {Path.GetFullPath(unicodeDataFilePath)}.\n\n" + message, "Success",MessageBoxButton.OK,MessageBoxImage.Information);
+        }
+        else
+        {
+            MessageBox.Show("Unicode data was NOT updated.\n\n" + message, "Error",MessageBoxButton.OK,MessageBoxImage.Error);
+        }
     }
 
     public static void OpenLink(string url)
