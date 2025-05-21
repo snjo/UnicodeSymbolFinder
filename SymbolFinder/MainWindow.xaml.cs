@@ -30,8 +30,6 @@ public partial class MainWindow : Window
     public bool ShowHiddenSymbols { get; set; }
     public bool ShowFavoritesOnly { get; set; }
     public FontData ResultFontSize = new(15);
-    public string hiddenSymbolsFilePath = @"data\hiddensymbols.txt";
-    public string favoritesFilePath = @"data\favorites.txt";
     public string unicodeDataFilePath = @"data\UnicodeData.txt"; // source file from the Unicode.org
     public string unicodeSymbolsFilePath = @"data\symbols.txt"; // the generated personal library file
 
@@ -57,7 +55,11 @@ public partial class MainWindow : Window
         }
         else
         {
-            LoadUnicodeFile(unicodeDataFilePath);
+            (bool success, string message) = LoadUnicodeFile(unicodeDataFilePath);
+            if (success == false)
+            {
+                MessageBox.Show($"Could not load unicode data. Check that the program was correctly installed.\n\n{message}","Error",MessageBoxButton.OK,MessageBoxImage.Error);
+            }
         }
 
         this.DataContext = this;
