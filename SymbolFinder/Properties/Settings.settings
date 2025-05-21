@@ -12,7 +12,7 @@
       <Value Profile="(Default)">15</Value>
     </Setting>
     <Setting Name="startingFont" Type="System.String" Scope="User">
-      <Value Profile="(Default)">Segoe UI Emoji</Value>
+      <Value Profile="(Default)">Segoe UI</Value>
     </Setting>
     <Setting Name="CodePointPrefix" Type="System.String" Scope="User">
       <Value Profile="(Default)">0x</Value>

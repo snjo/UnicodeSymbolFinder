@@ -765,7 +765,7 @@ public partial class MainWindow : Window
             fontCount++;
         }
 
-        //Debug.WriteLine($"Total {compatibleFontCount} fonts support {symbolString} {codeNumber}");
+        //Debug.WriteLine($"Total {compatibleFontCount} of {fontCount} fonts support {codeNumber:X4}");
         return (currentFontSupportsGlyph, compatibleFontCount, supportingFamilies);
     }
 
