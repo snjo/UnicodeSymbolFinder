@@ -49,12 +49,13 @@ public partial class MainWindow : Window
         InitializeComponent();
 
         // only load the original unicode data file if no custom symbols file exists
-        if (File.Exists(unicodeSymbolsFilePath))
+        if (LoadSymbolsFile()) //File.Exists(unicodeSymbolsFilePath))
         {
-            LoadSymbolsFile();
+            Debug.WriteLine("Symbols file loaded successfully");
         }
         else
         {
+            Debug.WriteLine("Symbols file not found, falling back to Unicode Data file");
             (bool success, string message) = LoadUnicodeFile(Path.GetFullPath(unicodeDataFilePath));
             if (success == false)
             {
@@ -808,7 +809,7 @@ public partial class MainWindow : Window
         }
     }
 
-    private void LoadSymbolsFile()
+    private bool LoadSymbolsFile()
     {
         string fullPath = System.IO.Path.GetFullPath(unicodeSymbolsFilePath);
         Debug.WriteLine($"Load symbols from file: {fullPath}");
@@ -816,7 +817,15 @@ public partial class MainWindow : Window
         Symbols.Clear();
         if (File.Exists(fullPath))
         {
-            string[] lines = File.ReadAllLines(fullPath);
+            string[] lines;
+            try
+            {
+                lines = File.ReadAllLines(fullPath);
+            }
+            catch
+            {
+                return false;
+            }
             int counter = 0;
             foreach (string line in lines)
             {
@@ -834,6 +843,11 @@ public partial class MainWindow : Window
             }
             Debug.WriteLine($"Added {counter} symbols from file");
         }
+        else
+        {
+            return false;
+        }
+        return true;
     }
 
     private void SaveSymolsFile(bool forceSave = false)
