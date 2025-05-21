@@ -55,7 +55,7 @@ public partial class MainWindow : Window
         }
         else
         {
-            (bool success, string message) = LoadUnicodeFile(unicodeDataFilePath);
+            (bool success, string message) = LoadUnicodeFile(Path.GetFullPath(unicodeDataFilePath));
             if (success == false)
             {
                 MessageBox.Show($"Could not load unicode data. Check that the program was correctly installed.\n\n{message}","Error",MessageBoxButton.OK,MessageBoxImage.Error);
