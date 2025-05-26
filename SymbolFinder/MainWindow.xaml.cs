@@ -698,13 +698,14 @@ public partial class MainWindow : Window
         // check for glyph (symbol) support in the font list
         if (Settings.Default.showFontCompatibility)
         {
-            (bool supportedByCurrentFont, int supportCount, List<string> supportingFamilies) = CheckFamiliesSupportingChar(symbol.CodeNumber, SelectedFont);//comboBoxFonts.SelectedItem as FontFamily);
+            (bool supportedByCurrentFont, int supportCount, List<string> supportingFamilies) = CheckFamiliesSupportingChar(symbol.CodeNumber, (FontFamily)comboBoxFonts.SelectedValue);//comboBoxFonts.SelectedItem as FontFamily);
             TextblockFontSupport.Text = $"Supported by selected font: {supportedByCurrentFont}";
             UpdateSupportedFontListText(supportCount, supportingFamilies);
         }
         else
         {
-            TextblockFontSupport.Text = "Font compatibility not shown.\nEnable in Options";
+            bool supportedByCurrentFont = FontSupportsChar(symbol.CodeNumber, (FontFamily)comboBoxFonts.SelectedValue);
+            TextblockFontSupport.Text = $"Supported by selected font: {supportedByCurrentFont}\n  Font support list disabled, Enable in options";//"Font compatibility not shown.\nEnable in Options";
             TextblockFontSupportCount.Text = "";
         }
     }
@@ -721,6 +722,24 @@ public partial class MainWindow : Window
             }
             TextblockFontSupportCount.Text += $"\n   {supportingFamilies[i]}";
         }
+    }
+
+    private static bool FontSupportsChar(int codeNumber, FontFamily? currentFont)
+    {
+        if (currentFont == null) return false;
+        var typefaces = currentFont.GetTypefaces();
+        foreach (Typeface typeface in typefaces)
+        {
+            typeface.TryGetGlyphTypeface(out GlyphTypeface glyph);
+
+            if (glyph != null && glyph.CharacterToGlyphMap.TryGetValue(codeNumber, out ushort glyphIndex))
+            {
+                //Debug.WriteLine($"{currentFont.Source} supports glyph {codeNumber:X4}");
+                return true;
+            }
+        }
+        //Debug.WriteLine($"{currentFont.Source} does NOT glyph {codeNumber:X4}");
+        return false;
     }
 
     private static (bool, int, List<string>) CheckFamiliesSupportingChar(int codeNumber, FontFamily? currentFont)
