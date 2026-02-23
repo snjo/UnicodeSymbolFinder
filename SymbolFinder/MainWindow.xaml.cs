@@ -20,7 +20,7 @@ namespace SymbolFinder;
 public partial class MainWindow : Window
 {
 
-    readonly List<UnicodeSymbol> Symbols = [];
+    private List<UnicodeSymbol> Symbols = [];
     public UnicodeCategories unicodeCategories = new();
 
     public ObservableCollection<UnicodeSymbol> SearchResults = [];
@@ -877,6 +877,7 @@ public partial class MainWindow : Window
             SaveRequested = false;
             string fullPath = System.IO.Path.GetFullPath(unicodeSymbolsFilePath);
             StringBuilder sb = new();
+            Symbols = Symbols.OrderBy(x => x.CodePoint).ToList();
             foreach (UnicodeSymbol symbol in Symbols)
             {
                 // ( codepoint,  name,  category,  unicode_1_name,  personalcomment, bool favorite, bool hidden) 
@@ -959,6 +960,7 @@ public partial class MainWindow : Window
         if (updated)
         {
             MessageBox.Show($"Unicode data updated from {Path.GetFullPath(unicodeDataFilePath)}.\n\n" + message, "Success",MessageBoxButton.OK,MessageBoxImage.Information);
+            SaveSymolsFile();
         }
         else
         {
