@@ -877,7 +877,7 @@ public partial class MainWindow : Window
             SaveRequested = false;
             string fullPath = System.IO.Path.GetFullPath(unicodeSymbolsFilePath);
             StringBuilder sb = new();
-            Symbols = Symbols.OrderBy(x => x.CodePoint).ToList();
+            Symbols = Symbols.OrderBy(x => x.CodeNumber).ToList();
             foreach (UnicodeSymbol symbol in Symbols)
             {
                 // ( codepoint,  name,  category,  unicode_1_name,  personalcomment, bool favorite, bool hidden) 
