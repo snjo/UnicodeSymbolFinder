@@ -1,4 +1,5 @@
-﻿using SymbolFinder.Properties;
+﻿using Microsoft.Win32;
+using SymbolFinder.Properties;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
@@ -956,10 +957,24 @@ public partial class MainWindow : Window
 
     private void MenuUpdateUnicodeData_Click(object sender, RoutedEventArgs e)
     {
-        (bool updated, string message) = LoadUnicodeFile(Path.GetFullPath(unicodeDataFilePath));
+        string defaultFile = Path.GetFullPath(unicodeDataFilePath);
+        OpenFileDialog fileDialog = new OpenFileDialog();
+        fileDialog.Filter = "Text file|*.txt";
+        fileDialog.DefaultDirectory = Path.GetDirectoryName(defaultFile);
+        fileDialog.Multiselect = false;
+        fileDialog.FileName = defaultFile;
+        if (fileDialog.ShowDialog() == false) return;
+        string filePath = fileDialog.FileName;
+        Debug.WriteLine($"Selected unicode data file: {filePath}");
+        if (File.Exists(filePath) == false)
+        {
+            Debug.WriteLine($"Unicode data file not found: {filePath}");
+            return;
+        }
+        (bool updated, string message) = LoadUnicodeFile(filePath);
         if (updated)
         {
-            MessageBox.Show($"Unicode data updated from {Path.GetFullPath(unicodeDataFilePath)}.\n\n" + message, "Success",MessageBoxButton.OK,MessageBoxImage.Information);
+            MessageBox.Show($"Unicode data updated from {filePath}.\n\n" + message, "Success",MessageBoxButton.OK,MessageBoxImage.Information);
             SaveSymolsFile();
         }
         else
